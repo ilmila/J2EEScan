@@ -68,6 +68,6 @@ public class CustomHttpRequestResponse implements IHttpRequestResponse {
 
     @Override
     public void setHttpService(IHttpService httpService) {
-        this._httpService = _httpService;
+        this._httpService = httpService;
     }
 }
