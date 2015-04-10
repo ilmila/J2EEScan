@@ -30,7 +30,7 @@ import java.util.List;
 public class AJPDetector implements IModule {
 
     private static final String TITLE = "Apache JServ Protocol (AJP) detected";
-    private static final String DESCRIPTION = "J2EEscan has identified a service using the Apache JServ Protocol (AJP).";
+    private static final String DESCRIPTION = "J2EEscan has identified a service using the Apache JServ Protocol (AJP), exposed via TCP port "; 
     private static final String REMEDY = "This issue does not constitute a security issue by itself. However, a misconfigured"
             + " AJP proxy may allow unauthorized access to internal resources. Disable AJP, if not used.";
 
@@ -78,8 +78,8 @@ public class AJPDetector implements IModule {
                                 baseRequestResponse.getHttpService(),
                                 new URL(url.getProtocol(), url.getHost(), port, "AJP_TCP_" + port),
                                 new CustomHttpRequestResponse(CPing, CPong, baseRequestResponse.getHttpService()),
-                                "Apache JServ Protocol (AJP) detected",
-                                "Apache JServ Protocol (AJP) discovered on the same host - Exposed via TCP port <b>" + port + "</b>",
+                                TITLE,
+                                DESCRIPTION+"<b>" + port + "</b>",
                                 REMEDY,
                                 Risk.Information,
                                 Confidence.Certain
