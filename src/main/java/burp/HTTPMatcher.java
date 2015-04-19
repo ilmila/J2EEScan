@@ -666,6 +666,7 @@ public class HTTPMatcher {
             oracleApplicationServerRe.add(Pattern.compile("Oracle Application Server Containers for J2EE 10g \\(([\\d\\.]+)\\)", Pattern.DOTALL));
             oracleApplicationServerRe.add(Pattern.compile("Oracle.Application.Server.10g\\/([\\d\\.]+)", Pattern.DOTALL));
             oracleApplicationServerRe.add(Pattern.compile("Oracle Application Server\\/([\\d\\.]+)", Pattern.DOTALL));
+            oracleApplicationServerRe.add(Pattern.compile("Oracle9iAS\\/([\\d\\.]+)", Pattern.DOTALL));            
 
             // check the pattern
             for (Pattern oracleRe : oracleApplicationServerRe) {
