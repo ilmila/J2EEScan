@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class OASConfigFilesDisclosure implements IModule {
 
-    private static final String TITLE = "Information Disclosure - Oralce Application Server Default Resources";
+    private static final String TITLE = "Information Disclosure - Oracle Application Server Default Resources";
     private static final String DESCRIPTION = "J2EEscan identified one ore more Oracle "
             + "Application Server issues. Some resources are publicly available, and may "
             + "contain sensitive internal information (es: internal paths, credentials) "
