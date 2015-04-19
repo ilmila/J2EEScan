@@ -46,7 +46,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         callbacks.setExtensionName("J2EE Advanced Tests");
         stdout.println("J2EEscan plugin loaded. ");
         stdout.println("Extended security checks for J2EE applications");
-        stdout.println("https://bitbucket.org/ilmila/j2eescan/");
+        stdout.println("https://github.com/ilmila/J2EEScan");
 
         try {
             List<String> m = getClassNamesFromPackage("burp.j2ee.issues.impl.");
