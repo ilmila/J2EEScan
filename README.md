@@ -40,12 +40,12 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Local File Include - ibm-web-ext.xml Retrieved
  * Local File Include - /etc/shadow Retrieved
  * Local File Include - /etc/passwd Retrieved
- * End Of Life Software - Oracle Application Server
  * HTTP Auth Weak Password
  * WEB-INF Application Configuration Files Retrieved
  * Status Servlet (CVE-2008-3273)
  * Snoop Servlet (CVE-2012-2170)
  * Extended Path Traversal Scan
+ * AJP Service Detection
  
 
 **Apache Struts**
@@ -115,6 +115,12 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Tomcat Host Manager Console Weak Password
  * End Of Life Software - Tomcat
 
+**Oracle Application Server**
+ 
+ * Added check for Oracle Log Database Accessible
+ * Added check for Multiple Oracle Application Server Default Resources (CVE-2002-0565, CVE-2002-0568, CVE-2002-0569)
+ * End Of Life Software - Oracle Application Server
+
 **Jetty**
 
  * Jetty Remote Leak Shared Buffers (CVE-2015-2080) found by [@gdssecurity](https://twitter.com/gdssecurity/)
@@ -137,6 +143,9 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 ## Release Notes
 
 ### Current branch:
+ * Added check for Oracle Application Server multiple file disclosure issues
+ * Added check for Oracle Log Database Accessible
+ * Added check for AJP service identification
  * Improved performance for passive checks
  * Improved Apache Wicket Information Disclosure
  * Added check for End Of Life Software - Jetty
