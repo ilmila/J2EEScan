@@ -124,6 +124,13 @@ public class HTTPMatcher {
         return (matchesShadow.size() > 0);
     }
 
+    public static boolean isWinINI(byte[] response, IExtensionHelpers helpers) {
+        final byte[] WIN_INI_PATTERN = "for 16-bit app support".getBytes();
+        List<int[]> matchesShadow = getMatches(response, WIN_INI_PATTERN, helpers);
+
+        return (matchesShadow.size() > 0);
+    }
+
     /**
      * WEB-INF/ibm-web-ext.xmi
      */
@@ -216,7 +223,7 @@ public class HTTPMatcher {
         String httpServerHeader = getResponseHeaderValue(respInfo, "Server");
 
         String contentTypeResponse = getResponseHeaderValue(respInfo, "Content-Type");
-        
+
         String req = helpers.bytesToString(rawRequest);
         String reqBody = req.substring(reqInfo.getBodyOffset());
         String respBody = helpers.bytesToString(rawResponse);
@@ -227,11 +234,10 @@ public class HTTPMatcher {
 
         /**
          * Java Server Faces Exceptions
-         * 
+         *
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
             List<byte[]> jsfExceptions = Arrays.asList(
                     "<pre><code>com.sun.facelets.FaceletException".getBytes(),
                     "<title>Error - org.apache.myfaces".getBytes());
@@ -259,11 +265,10 @@ public class HTTPMatcher {
 
         /**
          * Apache Struts Exceptions
-         * 
+         *
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
             byte[] strutsDevMode = "<title>Struts Problem Report</title>".getBytes();
             List<int[]> matchesStrutsDev = getMatches(rawResponse, strutsDevMode, helpers);
             if (matchesStrutsDev.size() > 0) {
@@ -287,11 +292,10 @@ public class HTTPMatcher {
 
         /**
          * Apache Tapestry Exceptions
-         * 
+         *
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
             byte[] tapestryException = "<h1 class=\"t-exception-report\">An unexpected application exception has occurred.</h1>".getBytes();
             List<int[]> matchesTapestry = getMatches(rawResponse, tapestryException, helpers);
             if (matchesTapestry.size() > 0) {
@@ -316,11 +320,10 @@ public class HTTPMatcher {
 
         /**
          * Grails Exceptions
-         * 
+         *
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
             byte[] grailsException = "<h1>Grails Runtime Exception</h1>".getBytes();
             List<int[]> matchesGrails = getMatches(rawResponse, grailsException, helpers);
             if (matchesGrails.size() > 0) {
@@ -341,13 +344,12 @@ public class HTTPMatcher {
                 ));
             }
         }
-        
+
         /**
          * GWT Exception
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
             byte[] gwtException = "com.google.gwt.http.client.RequestException".getBytes();
             List<int[]> matchesGWT = getMatches(rawResponse, gwtException, helpers);
             if (matchesGWT.size() > 0) {
@@ -371,11 +373,10 @@ public class HTTPMatcher {
 
         /**
          * J2EE Exception
-         * 
+         *
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
             List<byte[]> javaxServletExceptions = Arrays.asList(
                     "javax.servlet.ServletException".getBytes(),
                     "onclick=\"toggle('full exception chain stacktrace".getBytes(),
@@ -508,10 +509,9 @@ public class HTTPMatcher {
         /**
          * Detect Apache Tomcat
          */
-        if (respBody != null && contentTypeResponse != null && 
-                (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))
-                ){
-            
+        if (respBody != null && contentTypeResponse != null
+                && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
+
             Pattern tomcatRule = Pattern.compile("Apache Tomcat/([\\d\\.]+)", Pattern.DOTALL | Pattern.MULTILINE);
             Matcher matcher = tomcatRule.matcher(respBody);
 
@@ -580,9 +580,9 @@ public class HTTPMatcher {
          *
          * HTTP Server Header examples
          *
-         * Server: GlassFish Server Open Source Edition 3.1.1 
-         * Server: GlassFish Server Open Source Edition 4.0 
-         * Server: GlassFish Server Open Source Edition 4.1
+         * Server: GlassFish Server Open Source Edition 3.1.1 Server: GlassFish
+         * Server Open Source Edition 4.0 Server: GlassFish Server Open Source
+         * Edition 4.1
          */
         if (httpServerHeader != null) {
             Pattern glassfishRule = Pattern.compile("GlassFish Server Open Source Edition ([\\d\\.]+)", Pattern.DOTALL);
@@ -666,7 +666,7 @@ public class HTTPMatcher {
             oracleApplicationServerRe.add(Pattern.compile("Oracle Application Server Containers for J2EE 10g \\(([\\d\\.]+)\\)", Pattern.DOTALL));
             oracleApplicationServerRe.add(Pattern.compile("Oracle.Application.Server.10g\\/([\\d\\.]+)", Pattern.DOTALL));
             oracleApplicationServerRe.add(Pattern.compile("Oracle Application Server\\/([\\d\\.]+)", Pattern.DOTALL));
-            oracleApplicationServerRe.add(Pattern.compile("Oracle9iAS\\/([\\d\\.]+)", Pattern.DOTALL));            
+            oracleApplicationServerRe.add(Pattern.compile("Oracle9iAS\\/([\\d\\.]+)", Pattern.DOTALL));
 
             // check the pattern
             for (Pattern oracleRe : oracleApplicationServerRe) {
