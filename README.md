@@ -45,7 +45,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Status Servlet (CVE-2008-3273)
  * Snoop Servlet (CVE-2012-2170)
  * Extended Path Traversal Scan
- * AJP Service Detection
+ * AJP Service Detection - thanks to [@ikki](https://twitter.com/_ikki)
  
 
 **Apache Struts**
