@@ -55,6 +55,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Apache Struts 2 S2-020
  * Apache Struts 2 S2-021
  * Apache Struts DevMode Enabled
+ * Apache Struts OGNL Console
 
 **Grails**
 
@@ -154,6 +155,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Added check for Oracle Application Server version
  * Added check for Oracle Glassfish version
  * Added check for Oracle Weblogic version
+ * Added check Apache Struts OGNL Console
 
 ### Version 1.2.3dev (26 Feb, 2015):
  * Added check for Jetty Remote Leak Shared Buffers (CVE-2015-2080) found by [@gdssecurity](https://twitter.com/gdssecurity/)
