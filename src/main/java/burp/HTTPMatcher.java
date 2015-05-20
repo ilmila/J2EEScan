@@ -383,7 +383,8 @@ public class HTTPMatcher {
                     "at org.apache.catalina".getBytes(),
                     "at org.apache.coyote.".getBytes(),
                     "at org.jboss.seam.".getBytes(),
-                    "at org.apache.tomcat.".getBytes());
+                    "at org.apache.tomcat.".getBytes(),
+                    "The full stack trace of the root cause is available in".getBytes());
 
             for (byte[] exc : javaxServletExceptions) {
 
