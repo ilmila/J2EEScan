@@ -116,6 +116,11 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Tomcat Host Manager Console Weak Password
  * End Of Life Software - Tomcat
 
+**Weblogic**
+
+ * Weblogic UDDI Explorer Detection
+ * Weblogic UDDI Explorer SSRF Vulnerability (CVE-2014-4210)
+
 **Oracle Application Server**
  
  * Added check for Oracle Log Database Accessible
@@ -147,8 +152,10 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Added check for Oracle Application Server multiple file disclosure issues
  * Added check for Oracle Log Database Accessible
  * Added check for AJP service identification
+ * Added check for Weblogic UDDI Explorer SSRF (CVE-2014-4210)
  * Improved performance for passive checks
  * Improved Apache Wicket Information Disclosure
+ * Improved J2EE incorrect exception handling
  * Added check for End Of Life Software - Jetty
  * Added check for End Of Life Software - Tomcat
  * Added check for End Of Life Software - Oracle Application Server
@@ -156,6 +163,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Added check for Oracle Glassfish version
  * Added check for Oracle Weblogic version
  * Added check Apache Struts OGNL Console
+ 
 
 ### Version 1.2.3dev (26 Feb, 2015):
  * Added check for Jetty Remote Leak Shared Buffers (CVE-2015-2080) found by [@gdssecurity](https://twitter.com/gdssecurity/)
