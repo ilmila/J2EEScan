@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.em</groupId>
-    
-    <repositories>
 
-        <repository>
-            <id>commons-collections</id>
-            <url>http://commons.apache.org/collections/</url>
-        </repository>
-        
-    </repositories>
-    
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.em</groupId>
     <artifactId>J2EEScan</artifactId>
     <version>1.2.4</version>
     <packaging>jar</packaging>
-    
 
     <dependencies>
         <dependency>
