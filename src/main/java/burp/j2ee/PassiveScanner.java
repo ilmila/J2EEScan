@@ -49,7 +49,6 @@ public class PassiveScanner {
 
 
     private static String getBodySection(byte[] respBytes, int bodyOffset) {
-        ByteArrayInputStream in = new ByteArrayInputStream(respBytes, bodyOffset, respBytes.length - bodyOffset);
         return new String(respBytes, bodyOffset, respBytes.length - bodyOffset);
     }
 }
