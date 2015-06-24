@@ -6,9 +6,9 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
 /**
- * @author Philippe Arteau / h3xstream
+ * Recover seed from Random instance base on a single Struts token.
+ * @author Philippe Arteau
  */
-
 public class StrutsTokenCracker {
 
     //Constants used to reproduce Java LCG PRNG
@@ -86,8 +86,7 @@ public class StrutsTokenCracker {
         for (int i = 0; i < 0x10000; i++) {
             long seed = (v1 << 16) + i;
             if ((((seed * multiplier + addend) & mask) >>> 16) == v2) {
-                System.out.println("Seed found: " + seed);
-
+                //System.out.println("Seed found: " + seed);
                 return seed;
             }
         }
