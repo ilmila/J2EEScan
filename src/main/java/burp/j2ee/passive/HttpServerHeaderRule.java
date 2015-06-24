@@ -17,15 +17,26 @@ import java.util.regex.Pattern;
 
 public class HttpServerHeaderRule implements PassiveRule {
 
+    private static final Pattern JAVA_RULE = Pattern.compile("java\\/([\\d\\.\\_]+)", Pattern.DOTALL);
+    private static final Pattern JETTY_RULE = Pattern.compile("Jetty.([\\d\\.]+)", Pattern.DOTALL);
+    private static final Pattern JVM_RULE = Pattern.compile("\"><small>(1\\.\\d\\.[\\w\\-\\_\\.]+)<", Pattern.DOTALL | Pattern.MULTILINE);
+    private static final Pattern GLASSFISH_RULE = Pattern.compile("GlassFish Server Open Source Edition ([\\d\\.]+)", Pattern.DOTALL);
+    private static final Pattern WEBLOGIC_RULE = Pattern.compile("WebLogic (:?Server )?([\\d\\.]+)", Pattern.DOTALL);
+
+    private static final List<Pattern> ORACLE_APPLICATION_SERVER_RE = new ArrayList();
+    static{
+        ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle Application Server Containers for J2EE 10g \\(([\\d\\.]+)\\)", Pattern.DOTALL));
+        ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle.Application.Server.10g\\/([\\d\\.]+)", Pattern.DOTALL));
+        ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle Application Server\\/([\\d\\.]+)", Pattern.DOTALL));
+        ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle9iAS\\/([\\d\\.]+)", Pattern.DOTALL));
+    }
 
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
                      String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
                      String httpServerHeader, String contentTypeResponse) {
 
-
         IExtensionHelpers helpers = callbacks.getHelpers();
-
 
         /* HTTP Server Header examples
          * Server: Jetty/5.1.x (Linux/2.6.33.5-iR4-1.0.4.3 arm java/1.6.0_21
@@ -33,8 +44,7 @@ public class HttpServerHeaderRule implements PassiveRule {
          * Server: Jetty/5.1.3 (Windows 2003/5.2 x86 java/1.5.0_09
          */
         if (httpServerHeader != null) {
-            Pattern javaRule = Pattern.compile("java\\/([\\d\\.\\_]+)", Pattern.DOTALL);
-            Matcher javaMatcher = javaRule.matcher(httpServerHeader);
+            Matcher javaMatcher = JAVA_RULE.matcher(httpServerHeader);
             if (javaMatcher.find()) {
                 String version = javaMatcher.group(1);
                 callbacks.addScanIssue(new CustomScanIssue(
@@ -66,8 +76,7 @@ public class HttpServerHeaderRule implements PassiveRule {
          * Jetty/5.1.3 (Windows 2003/5.2 x86 java/1.5.0_09
          */
         if (httpServerHeader != null) {
-            Pattern jettyRule = Pattern.compile("Jetty.([\\d\\.]+)", Pattern.DOTALL);
-            Matcher jettyMatcher = jettyRule.matcher(httpServerHeader);
+            Matcher jettyMatcher = JETTY_RULE.matcher(httpServerHeader);
             if (jettyMatcher.find()) {
                 String version = jettyMatcher.group(1);
 
@@ -110,8 +119,7 @@ public class HttpServerHeaderRule implements PassiveRule {
          */
         if (respBody != null && reqInfo.getUrl().getPath().contains("manager/html")) {
 
-            Pattern jvmRule = Pattern.compile("\"><small>(1\\.\\d\\.[\\w\\-\\_\\.]+)<", Pattern.DOTALL | Pattern.MULTILINE);
-            Matcher matcher = jvmRule.matcher(respBody);
+            Matcher matcher = JVM_RULE.matcher(respBody);
 
             if (matcher.find()) {
 
@@ -132,43 +140,6 @@ public class HttpServerHeaderRule implements PassiveRule {
             }
         }
 
-
-
-        /**
-         * Detect Jetty
-         *
-         * HTTP Server Header examples Server: Jetty(6.1.1) Server:
-         * Jetty(9.0.4.v20130625) Server: Jetty/5.1.x
-         * (Linux/2.6.33.5-iR4-1.0.4.3 arm java/1.6.0_21 Server: Jetty/5.1.12
-         * (Linux/2.6.18-371.11.1.el5.centos.plus amd64 java/1.6.0_34 Server:
-         * Jetty/5.1.3 (Windows 2003/5.2 x86 java/1.5.0_09
-         */
-        if (httpServerHeader != null) {
-            Pattern jettyRule = Pattern.compile("Jetty.([\\d\\.]+)", Pattern.DOTALL);
-            Matcher jettyMatcher = jettyRule.matcher(httpServerHeader);
-            if (jettyMatcher.find()) {
-                String version = jettyMatcher.group(1);
-
-                SoftwareVersions.getIssues("Jetty", version, callbacks, baseRequestResponse);
-
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
-                callbacks.addScanIssue(new CustomScanIssue(
-                        baseRequestResponse.getHttpService(),
-                        reqInfo.getUrl(),
-                        baseRequestResponse,
-                        "Information Disclosure - Jetty " + version,
-                        "J2EEscan identified the remote Servlet Container release; "
-                                + "Jetty  version <b>" + version + "</b>.<br />"
-                                + "The potential vulnerabilities for this release are available at:<br />"
-                                + "<ul><li>" + nistLink + "</li></ul><br /><br />",
-                        "Configure the remote servlet container to suppress the HTTP Server header using the <i>sendServerVersion</i> directive<br />"
-                                + "http://docs.codehaus.org/display/JETTY/How+to+suppress+the+Server+HTTP+header",
-                        Risk.Low,
-                        Confidence.Certain
-                ));
-            }
-        }
-
         /**
          * Detect Glassfish
          *
@@ -179,8 +150,7 @@ public class HttpServerHeaderRule implements PassiveRule {
          * Edition 4.1
          */
         if (httpServerHeader != null) {
-            Pattern glassfishRule = Pattern.compile("GlassFish Server Open Source Edition ([\\d\\.]+)", Pattern.DOTALL);
-            Matcher glassfishMatcher = glassfishRule.matcher(httpServerHeader);
+            Matcher glassfishMatcher = GLASSFISH_RULE.matcher(httpServerHeader);
             if (glassfishMatcher.find()) {
                 String version = glassfishMatcher.group(1);
 
@@ -218,8 +188,7 @@ public class HttpServerHeaderRule implements PassiveRule {
          *
          */
         if (httpServerHeader != null) {
-            Pattern weblogicRule = Pattern.compile("WebLogic (:?Server )?([\\d\\.]+)", Pattern.DOTALL);
-            Matcher weblogicMatcher = weblogicRule.matcher(httpServerHeader);
+            Matcher weblogicMatcher = WEBLOGIC_RULE.matcher(httpServerHeader);
             if (weblogicMatcher.find()) {
                 String version = weblogicMatcher.group(2);
 
@@ -255,15 +224,9 @@ public class HttpServerHeaderRule implements PassiveRule {
          *
          */
         if (httpServerHeader != null) {
-            List<Pattern> oracleApplicationServerRe = new ArrayList();
-
-            oracleApplicationServerRe.add(Pattern.compile("Oracle Application Server Containers for J2EE 10g \\(([\\d\\.]+)\\)", Pattern.DOTALL));
-            oracleApplicationServerRe.add(Pattern.compile("Oracle.Application.Server.10g\\/([\\d\\.]+)", Pattern.DOTALL));
-            oracleApplicationServerRe.add(Pattern.compile("Oracle Application Server\\/([\\d\\.]+)", Pattern.DOTALL));
-            oracleApplicationServerRe.add(Pattern.compile("Oracle9iAS\\/([\\d\\.]+)", Pattern.DOTALL));
 
             // check the pattern
-            for (Pattern oracleRe : oracleApplicationServerRe) {
+            for (Pattern oracleRe : ORACLE_APPLICATION_SERVER_RE) {
 
                 Matcher oracleMatcher = oracleRe.matcher(httpServerHeader);
                 if (oracleMatcher.find()) {

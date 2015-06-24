@@ -18,6 +18,12 @@ import java.util.regex.Pattern;
 public class SqlQueryRule implements PassiveRule {
 
 
+    private static final List<Pattern> SQL_QUERIES_RE = new ArrayList();
+    static {
+        SQL_QUERIES_RE.add(Pattern.compile("select ", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+        SQL_QUERIES_RE.add(Pattern.compile("IS NOT NULL", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+    }
+
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
                      String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
@@ -32,12 +38,8 @@ public class SqlQueryRule implements PassiveRule {
          */
         if (reqBody != null) {
 
-            List<Pattern> sqlQueriesRe = new ArrayList();
-            sqlQueriesRe.add(Pattern.compile("select ", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
-            sqlQueriesRe.add(Pattern.compile("IS NOT NULL", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
-
             // check the pattern on response reqBody
-            for (Pattern sqlQueryRule : sqlQueriesRe) {
+            for (Pattern sqlQueryRule : SQL_QUERIES_RE) {
 
                 Matcher matcher = sqlQueryRule.matcher(helpers.urlDecode(reqBody));
 

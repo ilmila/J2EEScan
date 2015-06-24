@@ -43,12 +43,16 @@ public class ApacheStrutsS2016 implements IModule {
 
     private PrintWriter stderr;
 
+    private static List<Pattern> DETECTION_REGEX = new ArrayList();
+    static {
+        DETECTION_REGEX.add(Pattern.compile("Subnet Mask", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+        DETECTION_REGEX.add(Pattern.compile("uid=[0-9]+.*gid=[0-9]+.*", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE));
+        DETECTION_REGEX.add(Pattern.compile("java\\.lang\\.(UNIX)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+    }
+
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
-        List<Pattern> detectionRe = new ArrayList();
-        detectionRe.add(Pattern.compile("Subnet Mask", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
-        detectionRe.add(Pattern.compile("uid=[0-9]+.*gid=[0-9]+.*", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE));
-        detectionRe.add(Pattern.compile("java\\.lang\\.(UNIX)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+
 
         IExtensionHelpers helpers = callbacks.getHelpers();
         stderr = new PrintWriter(callbacks.getStderr(), true);
@@ -101,7 +105,7 @@ public class ApacheStrutsS2016 implements IModule {
                         IResponseInfo modifiedResponseInfo = callbacks.getHelpers().analyzeResponse(responseBytes);
 
                         // check the pattern on response body
-                        for (Pattern detectionRule : detectionRe) {
+                        for (Pattern detectionRule : DETECTION_REGEX) {
 
                             Matcher matcher = detectionRule.matcher(response);
                             if (matcher.find()) {
@@ -122,7 +126,7 @@ public class ApacheStrutsS2016 implements IModule {
                         // check the unix process string in every header 
                         for (String header : modifiedResponseInfo.getHeaders()) {
 
-                            for (Pattern detectionRule : detectionRe) {
+                            for (Pattern detectionRule : DETECTION_REGEX) {
                                 Matcher matcher = detectionRule.matcher(header.toLowerCase());
 
                                 if (matcher.find()) {

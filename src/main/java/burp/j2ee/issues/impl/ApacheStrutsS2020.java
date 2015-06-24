@@ -5,7 +5,6 @@ import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IParameter;
 import burp.IRequestInfo;
-import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
@@ -37,7 +36,11 @@ public class ApacheStrutsS2020 implements IModule {
             + "http://sec.baidu.com/index.php?research/detail/id/18<br />"
             + "http://www.pwntester.com/blog/2014/04/24/struts2-0day-in-the-wild/<br />";
     private static final String REMEDY = "Update the remote Struts vulnerable library";
-    
+
+    // Check for specific patterns on response page
+    private static final Pattern CLASSLOADER_PM = Pattern.compile("Invalid field value for field|No result defined for action",
+            Pattern.DOTALL | Pattern.MULTILINE);
+
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         IExtensionHelpers helpers = callbacks.getHelpers();
@@ -49,11 +52,7 @@ public class ApacheStrutsS2020 implements IModule {
 
         byte[] modifiedRawRequest = null;
         List<IScanIssue> issues = new ArrayList<>();
-        
-        
-        // Check for specific patterns on response page
-        Pattern classLoaderPM = Pattern.compile("Invalid field value for field|No result defined for action", 
-                            Pattern.DOTALL | Pattern.MULTILINE);
+
             
         if (curURL.getPath().contains(".action")) {
             byte[] rawrequest = baseRequestResponse.getRequest();
@@ -91,7 +90,7 @@ public class ApacheStrutsS2020 implements IModule {
             String response = helpers.bytesToString(responseBytes);
                    
             
-            Matcher matcher = classLoaderPM.matcher(response);
+            Matcher matcher = CLASSLOADER_PM.matcher(response);
             
             if (matcher.find()) {
                 issues.add(new CustomScanIssue(

@@ -1,19 +1,16 @@
 package burp;
 
-import static burp.HTTPParser.getResponseHeaderValue;
-import burp.j2ee.Confidence;
-import burp.j2ee.CustomScanIssue;
-import burp.j2ee.Risk;
-
-import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HTTPMatcher {
+
+    private static final Pattern SERVICES_PATTERN = Pattern.compile("services/(.*?)\\?wsdl", Pattern.MULTILINE);
+
+    private static final Pattern SERVLET_CLA_PATTERN = Pattern.compile("<servlet-class>(.*?)</servlet-class>", Pattern.DOTALL | Pattern.MULTILINE);
 
     /**
      * Parse the web.xml J2EE resource, and pretty print servlet classes into
@@ -49,9 +46,8 @@ public class HTTPMatcher {
     public static List<String> getServletsFromWebDescriptors(String webxml) {
         List<String> servlets = new ArrayList();
 
-        Pattern servletMatcher = Pattern.compile("<servlet-class>(.*?)</servlet-class>", Pattern.DOTALL | Pattern.MULTILINE);
 
-        Matcher matcher = servletMatcher.matcher(webxml);
+        Matcher matcher = SERVLET_CLA_PATTERN.matcher(webxml);
         while (matcher.find()) {
             int numEntries = matcher.groupCount();
             for (int i = 1; i <= numEntries; i++) {
@@ -72,9 +68,7 @@ public class HTTPMatcher {
     public static List<String> getServicesFromAxis(String axisServiceListPage) {
         List<String> wsName = new ArrayList();
 
-        Pattern servletMatcher = Pattern.compile("services/(.*?)\\?wsdl", Pattern.MULTILINE);
-
-        Matcher matcher = servletMatcher.matcher(axisServiceListPage);
+        Matcher matcher = SERVICES_PATTERN.matcher(axisServiceListPage);
         while (matcher.find()) {
             int numEntries = matcher.groupCount();
             for (int i = 1; i <= numEntries; i++) {

@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 
 public class ApacheTomcatRule implements PassiveRule {
 
+    private static final Pattern TOMCAT_PATTERN = Pattern.compile("Apache Tomcat/([\\d\\.]+)", Pattern.DOTALL | Pattern.MULTILINE);
+
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
                      String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
@@ -28,8 +30,7 @@ public class ApacheTomcatRule implements PassiveRule {
         if (respBody != null && contentTypeResponse != null
                 && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
 
-            Pattern tomcatRule = Pattern.compile("Apache Tomcat/([\\d\\.]+)", Pattern.DOTALL | Pattern.MULTILINE);
-            Matcher matcher = tomcatRule.matcher(respBody);
+            Matcher matcher = TOMCAT_PATTERN.matcher(respBody);
 
             if (matcher.find()) {
                 String version = matcher.group(1);
