@@ -39,7 +39,7 @@ public class ApacheTomcatRule implements PassiveRule {
                 String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Aapache%3Atomcat%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - Apache Tomcat " + version,
                         "J2EEscan identified the remote Servlet Container release; "

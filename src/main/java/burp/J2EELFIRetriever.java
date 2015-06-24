@@ -19,6 +19,15 @@ import java.util.List;
  */
 public class J2EELFIRetriever {
 
+
+    private static final String LFI_REMEDY = "Execute a code review activity to mitigate the LFI vulnerability<br /><br />"
+            + "<b>References</b>:<br /><br />"
+            + "http://www.hpenterprisesecurity.com/vulncat/en/vulncat/java/file_disclosure_spring_webflow.html<br />"
+            + "https://www.owasp.org/index.php/Testing_for_Local_File_Inclusion<br />"
+            + "http://cwe.mitre.org/data/definitions/22.html<br />"
+            + "https://www.securecoding.cert.org/confluence/display/cplusplus/FIO02-CPP.+Canonicalize+path+names+originating+from+untrusted+sources<br />"
+            + "https://www.securecoding.cert.org/confluence/display/java/FIO16-J.+Canonicalize+path+names+before+validating+them";
+
     /**
      * Through a base LFI request, modify the given LFI payload to automatically
      * retrieve common configuration files
@@ -38,14 +47,9 @@ public class J2EELFIRetriever {
 
         PrintWriter stderr = new PrintWriter(cb.getStderr(), true);
 
-        String LFI_REMEDY = "Execute a code review activity to mitigate the LFI vulnerability<br /><br />"
-                + "<b>References</b>:<br /><br />"
-                + "http://www.hpenterprisesecurity.com/vulncat/en/vulncat/java/file_disclosure_spring_webflow.html<br />"
-                + "https://www.owasp.org/index.php/Testing_for_Local_File_Inclusion<br />"
-                + "http://cwe.mitre.org/data/definitions/22.html<br />"
-                + "https://www.securecoding.cert.org/confluence/display/cplusplus/FIO02-CPP.+Canonicalize+path+names+originating+from+untrusted+sources<br />"
-                + "https://www.securecoding.cert.org/confluence/display/java/FIO16-J.+Canonicalize+path+names+before+validating+them";
-        
+
+        IRequestInfo requestInfo = helpers.analyzeRequest(baseRequestResponse);
+
         // Try to retrieve /etc/passwd file
         try {                   
             
@@ -60,7 +64,7 @@ public class J2EELFIRetriever {
             if (isEtcPasswdFile(passwdResponse, helpers)) {
                 cb.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         passwdRequestResponse,
                         "Local File Include - /etc/passwd Retrieved",
                         "J2EEScan was able to retrieve the <i>/etc/passwd</i> resource through the LFI vulnerability",
@@ -85,7 +89,7 @@ public class J2EELFIRetriever {
             if (isEtcShadowFile(shadowResponse, helpers)) {
                 cb.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         shadowRequestResponse,
                         "Local File Include - /etc/shadow Retrieved",
                         "J2EEScan was able tor retrieve the <i>/etc/shadow</i> resource "
@@ -116,7 +120,7 @@ public class J2EELFIRetriever {
             if (HTTPMatcher.isIBMWebExtFileWAS7(ibmwebResponse, helpers)) {
                 cb.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         ibmwebRequestResponse,
                         "Local File Include - ibm-web-ext.xml Retrieved",
                         "J2EEScan was able tor retrieve the IBM Application Server ibm-web-ext.xml resource through the LFI vulnerability.",
@@ -143,7 +147,7 @@ public class J2EELFIRetriever {
             if (HTTPMatcher.isIBMWebExtFileWAS6(ibmwebResponse, helpers)) {
                 cb.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         ibmwebRequestResponse,
                         "Local File Include - ibm-web-ext.xmi Retrieved",
                         "J2EEScan was able tor retrieve the IBM Application Server ibm-web-ext.xmi resource through the LFI vulnerability.",
@@ -169,7 +173,7 @@ public class J2EELFIRetriever {
             if (isIBMWSBinding(ibmwebResponse, helpers)) {
                 cb.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         ibmwebRequestResponse,
                         "Local File Include - ibm-ws-bnd.xml Retrieved",
                         "J2EEScan was able tor retrieve the IBM Application Server ibm-ws-bnd.xml resource through the LFI vulnerability.",
@@ -194,7 +198,7 @@ public class J2EELFIRetriever {
             if (HTTPMatcher.isWebLogicFile(weblogicResponse, helpers)) {
                 cb.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         weblogicRequestResponse,
                         "Local File Include - weblogic.xml Retrieved",
                         "J2EEScan was able tor retrieve the weblogic.xml resource through the LFI vulnerability.",
@@ -231,7 +235,7 @@ public class J2EELFIRetriever {
                 if (isApacheStrutsConfigFile(strutsResponse, helpers)) {
                     cb.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            requestInfo.getUrl(),
                             strutsRequestResponse,
                             "Local File Include - struts.xml Retrieved",
                             "J2EEScan was able tor retrieve the Apache Struts configuration file through the LFI vulnerability.",
@@ -270,7 +274,7 @@ public class J2EELFIRetriever {
                 if (isSpringContextConfigFile(springResponse, helpers)) {
                     cb.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            requestInfo.getUrl(),
                             springRequestResponse,
                             "Local File Include - Spring Application Context Retrieved",
                             "J2EEScan was able tor retrieve the Spring Application Context"

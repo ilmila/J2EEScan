@@ -44,7 +44,7 @@ public class SqlQueryRule implements PassiveRule {
                 if (matcher.find()) {
                     callbacks.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            reqInfo.getUrl(),
                             baseRequestResponse,
                             "SQL Statements in HTTP Request",
                             "J2EEScan potentially identified SQL statements in HTTP POST requests.<br />"

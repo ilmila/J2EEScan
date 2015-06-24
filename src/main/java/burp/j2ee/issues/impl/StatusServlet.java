@@ -148,7 +148,7 @@ public class StatusServlet implements IModule {
 
                             issues.add(new CustomScanIssue(
                                     baseRequestResponse.getHttpService(),
-                                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                    reqInfo.getUrl(),
                                     new CustomHttpRequestResponse(statustest, responseBytes, baseRequestResponse.getHttpService()),
                                     StatusServlet.TITLE,
                                     StatusServlet.DESCRIPTION,
@@ -165,7 +165,7 @@ public class StatusServlet implements IModule {
 
                             issues.add(new CustomScanIssue(
                                     baseRequestResponse.getHttpService(),
-                                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                    reqInfo.getUrl(),
                                     new CustomHttpRequestResponse(statustest, responseBytes, baseRequestResponse.getHttpService()),
                                     StatusServlet.TITLE,
                                     StatusServlet.DESCRIPTION,

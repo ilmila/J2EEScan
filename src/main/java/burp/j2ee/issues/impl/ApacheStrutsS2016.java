@@ -107,7 +107,7 @@ public class ApacheStrutsS2016 implements IModule {
                             if (matcher.find()) {
                                 issues.add(new CustomScanIssue(
                                         baseRequestResponse.getHttpService(),
-                                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                        reqInfo.getUrl(),
                                         checkRequestResponse,
                                         TITLE,
                                         DESCRIPTION,
@@ -128,7 +128,7 @@ public class ApacheStrutsS2016 implements IModule {
                                 if (matcher.find()) {
                                     issues.add(new CustomScanIssue(
                                             baseRequestResponse.getHttpService(),
-                                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                            reqInfo.getUrl(),
                                             checkRequestResponse,
                                             TITLE,
                                             DESCRIPTION,

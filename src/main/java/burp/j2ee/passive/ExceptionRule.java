@@ -40,7 +40,7 @@ public class ExceptionRule implements PassiveRule {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Apache Struts - DevMode Enabled",
                         "J2EEScan identified an Apache Struts exception. The remote application  is configured for"
@@ -68,7 +68,7 @@ public class ExceptionRule implements PassiveRule {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Incorrect Error Handling - Apache Tapestry",
                         "J2EEScan identified an Apache Tapestry exception."
@@ -97,7 +97,7 @@ public class ExceptionRule implements PassiveRule {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Incorrect Error Handling - Grails",
                         "J2EEScan identified a Grails exception."
@@ -124,7 +124,7 @@ public class ExceptionRule implements PassiveRule {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Incorrect Error Handling - GWT",
                         "J2EEScan identified a GWT exception."
@@ -141,7 +141,6 @@ public class ExceptionRule implements PassiveRule {
 
         /**
          * J2EE Exception
-         *
          */
         if (respBody != null && contentTypeResponse != null
                 && (contentTypeResponse.contains("text/html") || (contentTypeResponse.contains("text/plain")))) {
@@ -161,7 +160,7 @@ public class ExceptionRule implements PassiveRule {
 
                     callbacks.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            reqInfo.getUrl(),
                             baseRequestResponse,
                             "Incorrect Error Handling - Java",
                             "J2EEScan identified a Java exception. The remote application does not properly handle application errors, "
@@ -194,7 +193,7 @@ public class ExceptionRule implements PassiveRule {
 
                     callbacks.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            reqInfo.getUrl(),
                             baseRequestResponse,
                             "Incorrect Error Handling - JSF",
                             "J2EEScan identified a Java exception. The remote application does not properly handle application errors, "

@@ -54,9 +54,9 @@ public class ApacheWicketArbitraryResourceAccess implements IModule {
             byte[] rawrequest = baseRequestResponse.getRequest();
             String plainRequest = helpers.bytesToString(rawrequest);
 
-            for (String PAYLOAD : PAYLOADS) {
+            for (String payload : PAYLOADS) {
                 
-                byte[] wicketRequest = helpers.stringToBytes(plainRequest.replaceFirst("wicket\\/resource.*? HTTP", PAYLOAD));
+                byte[] wicketRequest = helpers.stringToBytes(plainRequest.replaceFirst("wicket\\/resource.*? HTTP", payload));
 
                 IRequestInfo rawWicketRequestInfo = helpers.analyzeRequest(wicketRequest);
 
@@ -71,7 +71,7 @@ public class ApacheWicketArbitraryResourceAccess implements IModule {
 
                     issues.add(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            reqInfo.getUrl(),
                             resp,
                             TITLE,
                             DESCRIPTION,

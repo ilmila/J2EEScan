@@ -19,6 +19,7 @@ public class SoftwareVersions {
             IHttpRequestResponse baseRequestResponse) {
 
         IExtensionHelpers helpers = callbacks.getHelpers();
+        IRequestInfo requestInfo = helpers.analyzeRequest(baseRequestResponse);
 
         
         /**
@@ -29,12 +30,11 @@ public class SoftwareVersions {
             /**
              * End of Life - Apache Tomcat
              */
-
             if ( Integer.parseInt(release.substring(0, 1)) <= 5 ) {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         baseRequestResponse,
                         "End of Life Software - Apache Tomcat " + release,
                         "J2EEScan identified an unsupported release of Apache Tomcat <b>" + release + "</b>.<br />"
@@ -62,7 +62,7 @@ public class SoftwareVersions {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         baseRequestResponse,
                         "End of Life Software - Jetty " + release,
                         "J2EEScan identified an unsupported release of Jetty <b>" + release + "</b>.<br />"
@@ -89,7 +89,7 @@ public class SoftwareVersions {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        requestInfo.getUrl(),
                         baseRequestResponse,
                         "End of Life Software - Oracle Application Server " + release,
                         "J2EEScan identified an unsupported release of Oracle Application Server <b>" + release + "</b>.<br />"

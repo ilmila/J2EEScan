@@ -39,7 +39,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                 String version = javaMatcher.group(1);
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - JVM Remote Release Detection",
                         "J2EEscan identified the remote JVM release <b>" + version + "</b>",
@@ -76,7 +76,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                 String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - Jetty " + version,
                         "J2EEscan identified the remote Servlet Container release; "
@@ -117,7 +117,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - JVM Remote Release Detection",
                         "J2EEscan identified the remote JVM release <b>" + matcher.group(1) + "</b>",
@@ -154,7 +154,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                 String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - Jetty " + version,
                         "J2EEscan identified the remote Servlet Container release; "
@@ -189,7 +189,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                 String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aglassfish_server%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - Glassfish " + version,
                         "J2EEscan identified the remote Application Server release; "
@@ -228,7 +228,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                 String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aweblogic_server%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
-                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                        reqInfo.getUrl(),
                         baseRequestResponse,
                         "Information Disclosure - WebLogic " + version,
                         "J2EEscan identified the remote Application Server release; "
@@ -274,7 +274,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                     String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aapplication_server%3A" + version;
                     callbacks.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
-                            helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                            reqInfo.getUrl(),
                             baseRequestResponse,
                             "Information Disclosure - Oracle Application Server " + version,
                             "J2EEscan identified the remote Application Server release; "
