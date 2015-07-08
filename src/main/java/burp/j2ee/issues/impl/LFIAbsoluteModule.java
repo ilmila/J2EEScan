@@ -62,10 +62,10 @@ public class LFIAbsoluteModule implements IModule{
         stderr = new PrintWriter(callbacks.getStderr(), true);
         
         
-        for (byte[] INJ_TEST : LFI_INJECTION_TESTS) {
+        for (byte[] injTest : LFI_INJECTION_TESTS) {
             
             // make a request containing our injection test in the insertion point
-            byte[] checkRequest = insertionPoint.buildRequest(INJ_TEST);
+            byte[] checkRequest = insertionPoint.buildRequest(injTest);
             IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                     baseRequestResponse.getHttpService(), checkRequest);
             

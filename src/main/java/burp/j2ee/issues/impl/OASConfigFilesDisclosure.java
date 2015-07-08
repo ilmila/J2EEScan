@@ -144,7 +144,7 @@ public class OASConfigFilesDisclosure implements IModule {
 
                                 issues.add(new CustomScanIssue(
                                         baseRequestResponse.getHttpService(),
-                                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                        reqInfo.getUrl(),
                                         new CustomHttpRequestResponse(oastest, responseBytes, baseRequestResponse.getHttpService()),
                                         TITLE,
                                         DESCRIPTION + "<br /><br /><b>Path: " + OAS_PATH + "</b><br />",

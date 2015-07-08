@@ -82,7 +82,7 @@ public class ApacheStrutsWebConsole implements IModule {
 
                         issues.add(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                reqInfo.getUrl(),
                                 checkRequestResponse,
                                 TITLE,
                                 DESCRIPTION,
@@ -134,7 +134,7 @@ public class ApacheStrutsWebConsole implements IModule {
 
                         issues.add(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                reqInfo.getUrl(),
                                 checkRequestResponse,
                                 TITLE,
                                 DESCRIPTION,

@@ -88,7 +88,7 @@ public class JBossAdminConsole implements IModule {
 
     private PrintWriter stderr;
 
-    
+    private static final Pattern VIEWSTATE_PATTERN = Pattern.compile("id=\"javax.faces.ViewState\" value=\"(.*?)\"");
     
     /**
      * Test for CVE 2010-1871 on the Jboss Admin console
@@ -208,8 +208,7 @@ public class JBossAdminConsole implements IModule {
                                  */
                                 // Retrieve the javax
                                 // id="javax.faces.ViewState" value="
-                                Pattern p = Pattern.compile("id=\"javax.faces.ViewState\" value=\"(.*?)\"");
-                                Matcher matcher = p.matcher(helpers.bytesToString(response));
+                                Matcher matcher = VIEWSTATE_PATTERN.matcher(helpers.bytesToString(response));
 
                                 if (matcher.find()) {
                                     String viewState = matcher.group(1);

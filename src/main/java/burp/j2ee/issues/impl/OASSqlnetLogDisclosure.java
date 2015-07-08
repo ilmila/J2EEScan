@@ -92,8 +92,8 @@ public class OASSqlnetLogDisclosure implements IModule {
 
                     if (statusInfo.getStatusCode() == 200) {
 
-                        for (byte[] GREP_STRING : GREP_STRINGS) {
-                            List<int[]> matches_j2ee = getMatches(responseBytes, GREP_STRING, helpers);
+                        for (byte[] grepString : GREP_STRINGS) {
+                            List<int[]> matches_j2ee = getMatches(responseBytes, grepString, helpers);
                             if (matches_j2ee.size() > 0) {
 
                                 issues.add(new CustomScanIssue(

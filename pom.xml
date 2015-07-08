@@ -1,29 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.em</groupId>
-    
-    <repositories>
 
-        <repository>
-            <id>commons-collections</id>
-            <url>http://commons.apache.org/collections/</url>
-        </repository>
-        
-    </repositories>
-    
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.em</groupId>
     <artifactId>J2EEScan</artifactId>
     <version>1.2.4</version>
     <packaging>jar</packaging>
-    
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
          
         <dependency>
             <groupId>commons-collections</groupId>
@@ -37,13 +22,20 @@
             <artifactId>jsoup</artifactId>
             <version>1.8.1</version>
         </dependency>
-        
+
+
         <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>2.0</version>
-            <scope>test</scope>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+        </dependency>
+
     </dependencies>
     
     <build>

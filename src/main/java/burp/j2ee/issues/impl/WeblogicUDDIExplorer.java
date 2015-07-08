@@ -106,7 +106,7 @@ public class WeblogicUDDIExplorer implements IModule {
                         if (matches.size() > 0) {
                             issues.add(new CustomScanIssue(
                                     baseRequestResponse.getHttpService(),
-                                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                    reqInfo.getUrl(),
                                     new CustomHttpRequestResponse(udditest, response, baseRequestResponse.getHttpService()),
                                     TITLE,
                                     DESCRIPTION,
@@ -130,7 +130,7 @@ public class WeblogicUDDIExplorer implements IModule {
 
                                 issues.add(new CustomScanIssue(
                                         baseRequestResponse.getHttpService(),
-                                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                        reqInfo.getUrl(),
                                         new CustomHttpRequestResponse(ssrfRootRequest, ssrfResponse, baseRequestResponse.getHttpService()),
                                         TITLE_SSRF,
                                         DESCRIPTION_SSRF,

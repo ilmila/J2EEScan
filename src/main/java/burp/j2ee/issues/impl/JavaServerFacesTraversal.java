@@ -4,12 +4,10 @@ import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
-import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.J2EELFIRetriever;
 import burp.J2EELocalAssessment;
-import static burp.J2EELocalAssessment.analyzeWEBXML;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
@@ -38,6 +36,11 @@ public class JavaServerFacesTraversal implements IModule {
     private static final String REMEDY = "Upgrade to the latest version of the JSF framework.";
             
     private PrintWriter stderr;
+
+    private static final List<Pattern> DETECTION_REGEX = new ArrayList();
+    static {
+        DETECTION_REGEX.add(Pattern.compile("<servlet-class>javax.faces.", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+    }
 
     private List<URL> uriMutator(URL completeURI) {
 
@@ -93,8 +96,6 @@ public class JavaServerFacesTraversal implements IModule {
     @Override
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
-        List<Pattern> detectionRe = new ArrayList();
-        detectionRe.add(Pattern.compile("<servlet-class>javax.faces.", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
 
         IExtensionHelpers helpers = callbacks.getHelpers();
         stderr = new PrintWriter(callbacks.getStderr(), true);
@@ -128,7 +129,7 @@ public class JavaServerFacesTraversal implements IModule {
                 String response = helpers.bytesToString(responseBytes);
 
                 // check the pattern on response body
-                for (Pattern detectionRule : detectionRe) {
+                for (Pattern detectionRule : DETECTION_REGEX) {
 
                     Matcher matcher = detectionRule.matcher(response);
                     if (matcher.find()) {
@@ -143,7 +144,7 @@ public class JavaServerFacesTraversal implements IModule {
 
                         issues.add(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                reqInfo.getUrl(),
                                 checkRequestResponse,
                                 TITLE,
                                 DESCRIPTION,

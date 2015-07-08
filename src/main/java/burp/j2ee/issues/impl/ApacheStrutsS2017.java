@@ -93,7 +93,7 @@ public class ApacheStrutsS2017 implements IModule {
 
                                 issues.add(new CustomScanIssue(
                                         baseRequestResponse.getHttpService(),
-                                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                        reqInfo.getUrl(),
                                         checkRequestResponse,
                                         TITLE,
                                         DESCRIPTION,

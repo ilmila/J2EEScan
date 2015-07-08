@@ -1,6 +1,7 @@
 package burp;
 
-import burp.j2ee.CustomScanIssue;
+import burp.j2ee.PassiveScanner;
+
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
@@ -90,9 +91,9 @@ public class WeakPasswordBruteforcer {
                                 makeHttpRequest,
                                 responseWeakPassword,
                                 httpServiceInstance);
-        
 
-                        HTTPMatcher.getVulnerabilityByPageParsing(result, callbacks);
+
+                        PassiveScanner.scanVulnerabilities(result, callbacks);
                                 
                         return result;
                     }

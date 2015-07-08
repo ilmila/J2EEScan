@@ -74,7 +74,7 @@ public class XXEModule implements IModule{
         List<IScanIssue> issues = new ArrayList<>();
         stdout = new PrintWriter(callbacks.getStdout(), true);
         IRequestInfo reqInfo = callbacks.getHelpers().analyzeRequest(baseRequestResponse);
-        IResponseInfo respInfo = callbacks.getHelpers().analyzeResponse(baseRequestResponse.getResponse());
+        //IResponseInfo respInfo = callbacks.getHelpers().analyzeResponse(baseRequestResponse.getResponse());
 
         // Skip test if there is no XML request body
         if (IRequestInfo.CONTENT_TYPE_XML != reqInfo.getContentType()){

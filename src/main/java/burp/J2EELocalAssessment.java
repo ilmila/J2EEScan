@@ -25,18 +25,18 @@ import org.xml.sax.SAXException;
  */
 public class J2EELocalAssessment {
 
+
+    private static final Pattern WEB_APP_PATTERN = Pattern.compile("(<web-app.*?</web-app>)", Pattern.DOTALL | Pattern.MULTILINE);
+
     public static void analyzeWEBXML(byte[] webxmlFile, IBurpExtenderCallbacks cb,
             IHttpRequestResponse baseRequestResponse) {
 
         IExtensionHelpers helpers = cb.getHelpers();
-
         PrintWriter stderr = new PrintWriter(cb.getStderr(), true);
-
-        Pattern pattern = Pattern.compile("(<web-app.*?</web-app>)", Pattern.DOTALL | Pattern.MULTILINE);
         String webxml = helpers.bytesToString(webxmlFile);
+        IRequestInfo requestInfo = helpers.analyzeRequest(baseRequestResponse);
 
-        Matcher matcher = pattern.matcher(webxml);
-
+        Matcher matcher = WEB_APP_PATTERN.matcher(webxml);
         if (matcher.find()) {
 
             try {
@@ -67,7 +67,7 @@ public class J2EELocalAssessment {
                     if ((httpMethods != null) && (httpMethods.getLength() >= 1)) {
                         cb.addScanIssue(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                requestInfo.getUrl(),
                                 baseRequestResponse,
                                 "Compliance Checks - web.xml - HTTP Verb Tampering",
                                 "J2EEScan identified a potential HTTP Verb Tampering vulnerability inspecting"
@@ -121,7 +121,7 @@ public class J2EELocalAssessment {
 
                             cb.addScanIssue(new CustomScanIssue(
                                     baseRequestResponse.getHttpService(),
-                                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                    requestInfo.getUrl(),
                                     baseRequestResponse,
                                     "Compliance Checks- web.xml - URL Parameters for Session Tracking",
                                     "J2EEScan identified a potential Information Disclosure vulnerabilitiy inspecting"
@@ -167,7 +167,7 @@ public class J2EELocalAssessment {
                     if (incompleteErrorHandling) {
                         cb.addScanIssue(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                requestInfo.getUrl(),
                                 baseRequestResponse,
                                 "Compliance Checks - web.xml - Incomplete Error Handling (Throwable)",
                                 "J2EEScan identified a potential Information Disclosure vulnerabilitiy inspecting"
@@ -218,7 +218,7 @@ public class J2EELocalAssessment {
                     if (incompleteErrorHandling500) {
                         cb.addScanIssue(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                requestInfo.getUrl(),
                                 baseRequestResponse,
                                 "Compliance Checks - web.xml - Incomplete Error Handling (HTTP Code 500)",
                                 "J2EEScan identified a potential Information Disclosure vulnerabilitiy inspecting"
@@ -269,7 +269,7 @@ public class J2EELocalAssessment {
                     if (incompleteErrorHandling404) {
                         cb.addScanIssue(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
-                                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                requestInfo.getUrl(),
                                 baseRequestResponse,
                                 "Compliance Checks - web.xml - Incomplete Error Handling (HTTP Code 404)",
                                 "J2EEScan identified a potential Information Disclosure vulnerabilitiy inspecting"
@@ -318,7 +318,7 @@ public class J2EELocalAssessment {
                         if (value.contains("InvokerServlet")) {
                             cb.addScanIssue(new CustomScanIssue(
                                     baseRequestResponse.getHttpService(),
-                                    helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                                    requestInfo.getUrl(),
                                     baseRequestResponse,
                                     "Compliance Checks - web.xml - Invoker Servlet",
                                     "J2EEScan identified the <i>InvokerServlet</> enabled inspecting"

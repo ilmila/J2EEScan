@@ -1,24 +1,18 @@
 package burp;
 
-import static burp.HTTPMatcher.getVulnerabilityByPageParsing;
+import burp.j2ee.PassiveScanner;
 import burp.j2ee.issues.IModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class BurpExtender implements IBurpExtender, IScannerCheck {
 
@@ -67,7 +61,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
         List<IScanIssue> issues = new ArrayList<>();
 
-        getVulnerabilityByPageParsing(baseRequestResponse, callbacks);
+        PassiveScanner.scanVulnerabilities(baseRequestResponse, callbacks);
 
         return issues;
     }
@@ -117,7 +111,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         List<IScanIssue> issues = new ArrayList<>();
         List<String> j2eeTests;
 
-        try {            
+        try {
             j2eeTests = getClassNamesFromPackage("burp.j2ee.issues.impl.");
             for (String module : j2eeTests) {                
                 try {
@@ -129,20 +123,8 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
                                         
                     issues.addAll(j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint));
 
-                } catch (NoSuchMethodException ex) {
+                } catch (NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
                     stderr.println(ex);
-                } catch (SecurityException ex) {
-                    stderr.println(ex);
-                } catch (ClassNotFoundException ex) {
-                    stderr.println(ex);
-                } catch (IllegalAccessException ex) {
-                    ex.printStackTrace(stderr);
-                } catch (IllegalArgumentException ex) {
-                    ex.printStackTrace(stderr);
-                } catch (InvocationTargetException ex) {
-                    ex.printStackTrace(stderr);
-                } catch (InstantiationException ex) {
-                    ex.printStackTrace(stderr);
                 } catch (Exception ex){
                     ex.printStackTrace(stderr);
                 }
