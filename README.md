@@ -50,6 +50,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 
 **Apache Struts**
 
+ * Apache Struts 2 S2-023 - thanks to [@h3xstream](https://twitter.com/h3xstream)
  * Apache Struts 2 S2-016
  * Apache Struts 2 S2-017
  * Apache Struts 2 S2-020
@@ -120,6 +121,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 
  * Weblogic UDDI Explorer Detection
  * Weblogic UDDI Explorer SSRF Vulnerability (CVE-2014-4210)
+ * Weblogic Admin Console Weak Password
 
 **Oracle Application Server**
  
@@ -149,6 +151,8 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 ## Release Notes
 
 ### Current branch:
+ * Added check for Apache Struts 2 S2-023 - thanks to [@h3xstream](https://twitter.com/h3xstream)
+ * Added check for Weblogic Admin Console Weak Password
  * Added check for Oracle Application Server multiple file disclosure issues
  * Added check for Oracle Log Database Accessible
  * Added check for AJP service identification
