@@ -6,6 +6,7 @@ import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
 import burp.IResponseInfo;
+import burp.j2ee.passive.ApacheStrutsS2023Rule;
 import burp.j2ee.passive.ApacheTomcatRule;
 import burp.j2ee.passive.ExceptionRule;
 import burp.j2ee.passive.HttpServerHeaderRule;
@@ -19,7 +20,12 @@ public class PassiveScanner {
     /**
      * List of passive rules
      */
-    static PassiveRule[] PASSIVE_RULES = {new ApacheTomcatRule(), new ExceptionRule(), new HttpServerHeaderRule(), new SqlQueryRule()};
+    static PassiveRule[] PASSIVE_RULES = {new ApacheTomcatRule(), 
+        new ExceptionRule(), 
+        new HttpServerHeaderRule(), 
+        new SqlQueryRule(),
+        new ApacheStrutsS2023Rule()
+    };
 
     public static void scanVulnerabilities(IHttpRequestResponse baseRequestResponse,
                                            IBurpExtenderCallbacks callbacks) {
