@@ -31,6 +31,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 **Misc**
 
  * Expression Language Injection (CVE-2011-2730)
+ * Apache Roller OGNL Injection (CVE-2013-4212)
  * Local File include - /WEB-INF/web.xml Retrieved
  * Local File Include - Spring Application Context Retrieved
  * Local File Include - struts.xml Retrieved
@@ -151,6 +152,9 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 ## Release Notes
 
 ### Current branch:
+ * Improved LFI module with new UTF-8 payloads
+ * Improved EL Injection with new payloads
+ * Added check for Apache Roller OGNL Injection (CVE-2013-4212)
  * Added check for Apache Struts 2 S2-023 - thanks to [@h3xstream](https://twitter.com/h3xstream)
  * Added check for Weblogic Admin Console Weak Password
  * Added check for Oracle Application Server multiple file disclosure issues
