@@ -47,6 +47,8 @@ public class WeakPassword {
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic1"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "welcome1"));
+        // Orbeon forms
+        credentials.add(new AbstractMap.SimpleEntry<>("orbeonadmin", "xforms"));
 
         return credentials;
 
