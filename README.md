@@ -47,6 +47,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Snoop Servlet (CVE-2012-2170)
  * Extended Path Traversal Scan
  * AJP Service Detection - thanks to [@ikki](https://twitter.com/_ikki)
+ * Spring Boot Actuator console
  
 
 **Apache Struts**
@@ -152,6 +153,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 ## Release Notes
 
 ### Current branch:
+ * Added check for Spring Boot Actuator console
  * Improved LFI module with new UTF-8 payloads
  * Improved EL Injection with new payloads
  * Added check for Apache Roller OGNL Injection (CVE-2013-4212)
