@@ -10,7 +10,7 @@ import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
-import static burp.WeakPasswordBruteforcer.HTTPBasicBruteforce;
+import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
@@ -64,17 +64,20 @@ public class HTTPWeakPassword implements IModule{
 
                 // Test Weak Passwords
                 CustomHttpRequestResponse httpWeakPasswordResult;
-                httpWeakPasswordResult = HTTPBasicBruteforce(callbacks, url);
+                WeakPasswordBruteforcer br = new WeakPasswordBruteforcer();
+                httpWeakPasswordResult = br.HTTPBasicBruteforce(callbacks, url);
 
                 // Retrieve the weak credentials
                 String weakCredential = null;
                 String weakCredentialDescription = "";
+                String bc = null;
                 try {
 
                     IRequestInfo reqInfoPwd = callbacks.getHelpers().analyzeRequest(baseRequestResponse.getHttpService(), httpWeakPasswordResult.getRequest());
-                    weakCredential = new String(helpers.base64Decode(HTTPParser.getHTTPBasicCredentials(reqInfoPwd)));
+                    bc = HTTPParser.getHTTPBasicCredentials(reqInfoPwd);
+                    weakCredential = new String(helpers.base64Decode(bc));
                 } catch (Exception ex) {
-                    stderr.println("Error during Authorization Header parsing " + ex);
+                    stderr.println("HTTP Weak Password - Error during Authorization Header parsing " + ex + bc);
                 }
 
                 if (weakCredential != null) {

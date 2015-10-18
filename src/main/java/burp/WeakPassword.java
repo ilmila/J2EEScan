@@ -7,13 +7,23 @@ import java.util.Map;
 
 public class WeakPassword {
 
-    public static final List<Map.Entry<String, String>> credentials = new ArrayList<>();
+    public final List<Map.Entry<String, String>> credentials;
+            
+    public WeakPassword(){
+        credentials = new ArrayList<>();
+    }
+    
 
+    public void addCredential(Map.Entry<String, String> credential){
+        credentials.add(credential);
+    }
+    
+    
     /**
      * Get a list of common username and password couples
      * @return 
      */
-    public static List<Map.Entry<String, String>> getCredentials() {
+    public List<Map.Entry<String, String>> getCredentials() {
 
         credentials.add(new AbstractMap.SimpleEntry<>("tomcat", "tomcat"));
         credentials.add(new AbstractMap.SimpleEntry<>("tomcat", "manager"));
@@ -25,6 +35,8 @@ public class WeakPassword {
         credentials.add(new AbstractMap.SimpleEntry<>("admin", "password"));
         credentials.add(new AbstractMap.SimpleEntry<>("admin", "tomcat"));
         credentials.add(new AbstractMap.SimpleEntry<>("admin", "manager"));
+        credentials.add(new AbstractMap.SimpleEntry<>("manager", "manager"));
+        credentials.add(new AbstractMap.SimpleEntry<>("manager", "tomcat"));
         credentials.add(new AbstractMap.SimpleEntry<>("role1", "role1"));
         credentials.add(new AbstractMap.SimpleEntry<>("role1", "tomcat"));
         credentials.add(new AbstractMap.SimpleEntry<>("role", "changethis"));

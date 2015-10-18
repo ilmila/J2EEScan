@@ -10,7 +10,7 @@ import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
-import static burp.WeakPasswordBruteforcer.HTTPBasicBruteforce;
+import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.Risk;
 import burp.j2ee.issues.IModule;
@@ -124,7 +124,8 @@ public class JBossJMXInvoker implements IModule{
                     if (jbossInvokerInfo.getStatusCode() == 401) {
                         // Test Weak Passwords
                         CustomHttpRequestResponse httpWeakPasswordResult;
-                        httpWeakPasswordResult = HTTPBasicBruteforce(callbacks, urlToTest);
+                        WeakPasswordBruteforcer br = new WeakPasswordBruteforcer();
+                        httpWeakPasswordResult = br.HTTPBasicBruteforce(callbacks, urlToTest);
 
                         if (httpWeakPasswordResult != null) {
                             issues.add(new CustomScanIssue(

@@ -205,5 +205,23 @@ public class HTTPMatcher {
         return context;
     }
 
+    /**
+     * Iterate on a list of URIs paths and apply some modifiers to 
+     * circumvent some weak ACL protections or weak/wrong mod_rewrite rules.
+     *
+     * Example: * CWE-50: Path Equivalence: '//multiple/leading/slash' *
+     * https://cwe.mitre.org/data/definitions/50.html
+     *
+     */
+    public static List URIMutator(List<String> uripaths) {
+        List<String> modifiedPaths = new ArrayList<>();
+        modifiedPaths.addAll(uripaths);
 
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            modifiedPaths.set(i, "/" + uripaths.get(i));
+        }
+            
+            
+        return modifiedPaths;
+    }
 }

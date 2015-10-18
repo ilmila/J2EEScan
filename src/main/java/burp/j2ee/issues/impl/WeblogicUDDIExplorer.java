@@ -10,7 +10,7 @@ import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
-import static burp.WeakPasswordBruteforcer.HTTPBasicBruteforce;
+
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;

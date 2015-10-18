@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.HTTPParser;
 import burp.IBurpExtenderCallbacks;
@@ -10,7 +11,7 @@ import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
-import static burp.WeakPasswordBruteforcer.HTTPBasicBruteforce;
+import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
@@ -76,7 +77,8 @@ public class StatusServlet implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String STATUS_SERVLET_PATH : STATUS_SERVLET_PATHS) {
+            List<String> STATUS_SERVLET_PATHS_MUTATED = URIMutator(STATUS_SERVLET_PATHS);
+            for (String STATUS_SERVLET_PATH : STATUS_SERVLET_PATHS_MUTATED) {
 
                 try {
                     // Test the presence of tomcat console
@@ -107,7 +109,8 @@ public class StatusServlet implements IModule {
 
                         // Test Weak Passwords
                         CustomHttpRequestResponse httpWeakPasswordResult;
-                        httpWeakPasswordResult = HTTPBasicBruteforce(callbacks, urlToTest);
+                        WeakPasswordBruteforcer br = new WeakPasswordBruteforcer();
+                        httpWeakPasswordResult = br.HTTPBasicBruteforce(callbacks, urlToTest);
 
                         if (httpWeakPasswordResult != null) {
                             

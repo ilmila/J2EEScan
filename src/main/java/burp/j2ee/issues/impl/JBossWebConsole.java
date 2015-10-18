@@ -9,7 +9,8 @@ import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
-import static burp.WeakPasswordBruteforcer.HTTPBasicBruteforce;
+import burp.WeakPasswordBruteforcer;
+
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
@@ -127,7 +128,8 @@ public class JBossWebConsole implements IModule {
 
                         // Test Weak Passwords
                         CustomHttpRequestResponse httpWeakPasswordResult;
-                        httpWeakPasswordResult = HTTPBasicBruteforce(callbacks, urlToTest);
+                        WeakPasswordBruteforcer br = new WeakPasswordBruteforcer();
+                        httpWeakPasswordResult = br.HTTPBasicBruteforce(callbacks, urlToTest);
 
                         if (httpWeakPasswordResult != null) {
                             issues.add(new CustomScanIssue(

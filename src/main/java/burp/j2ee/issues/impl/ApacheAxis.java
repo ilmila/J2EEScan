@@ -73,7 +73,9 @@ public class ApacheAxis implements IModule {
 
     private String axisAdminBruteforcer(URL url, IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse) {
         List<Map.Entry<String, String>> credentials;
-        credentials = WeakPassword.getCredentials();
+        WeakPassword wp = new WeakPassword();
+        credentials = wp.getCredentials();
+        
 
         List<String> listOfPwd = new ArrayList<>();
         for (Map.Entry<String, String> credential : credentials) {

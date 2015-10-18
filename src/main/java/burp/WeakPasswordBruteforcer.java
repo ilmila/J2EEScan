@@ -5,6 +5,7 @@ import burp.j2ee.PassiveScanner;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class WeakPasswordBruteforcer {
      * @param urlToTest
      * @return 
      */
-    public static CustomHttpRequestResponse HTTPBasicBruteforce(IBurpExtenderCallbacks callbacks, final URL urlToTest) {
+    public CustomHttpRequestResponse HTTPBasicBruteforce(IBurpExtenderCallbacks callbacks, final URL urlToTest) {
 
         
         IExtensionHelpers helpers = callbacks.getHelpers();
@@ -28,7 +29,8 @@ public class WeakPasswordBruteforcer {
         stdout = new PrintWriter(callbacks.getStdout(), true);
 
         List<Map.Entry<String, String>> credentials;
-        credentials = WeakPassword.getCredentials();
+        WeakPassword wp = new WeakPassword();
+        credentials = wp.getCredentials();
 
         byte[] httpAuthTest = helpers.buildHttpRequest(urlToTest);
 
@@ -48,7 +50,7 @@ public class WeakPasswordBruteforcer {
             List requestHeaders = requestInfo.getHeaders();
 
             for (Map.Entry<String, String> credential : credentials) {
-
+            
                 try {
                     List<String> requestHeadersToTest = new ArrayList<>(requestHeaders);
 

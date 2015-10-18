@@ -9,7 +9,7 @@ import burp.IRequestInfo;
 import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
-import static burp.WeakPasswordBruteforcer.HTTPBasicBruteforce;
+import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
@@ -103,25 +103,27 @@ public class TomcatManager implements IModule {
 
                                 // Test Weak Passwords
                                 CustomHttpRequestResponse httpWeakPasswordResult;
-                                httpWeakPasswordResult = HTTPBasicBruteforce(callbacks, urlToTest);
-
-                                // Retrieve the weak credentials
-                                String weakCredential = null;
-                                String weakCredentialDescription = "";
-                                try {
-
-                                    IRequestInfo reqInfoPwd = callbacks.getHelpers().analyzeRequest(baseRequestResponse.getHttpService(), httpWeakPasswordResult.getRequest());
-                                    weakCredential = new String(helpers.base64Decode(HTTPParser.getHTTPBasicCredentials(reqInfoPwd)));
-                                } catch (Exception ex) {
-                                    stderr.println("Error during Authorization Header parsing " + ex);
-                                }
-
-                                if (weakCredential != null) {
-                                    weakCredentialDescription += String.format("<br /><br /> The weak credentials are "
-                                            + "<b>%s</b><br /><br />", weakCredential);
-                                }
+                                                WeakPasswordBruteforcer br = new WeakPasswordBruteforcer();
+                                httpWeakPasswordResult = br.HTTPBasicBruteforce(callbacks, urlToTest);
 
                                 if (httpWeakPasswordResult != null) {
+                                    // Retrieve the weak credentials
+                                    String weakCredential = null;
+                                    String weakCredentialDescription = "";
+                                    String bc = null;
+                                    try {
+                                        IRequestInfo reqInfoPwd = callbacks.getHelpers().analyzeRequest(baseRequestResponse.getHttpService(), httpWeakPasswordResult.getRequest());
+                                        bc = HTTPParser.getHTTPBasicCredentials(reqInfoPwd);
+                                        weakCredential = new String(helpers.base64Decode(bc));
+                                    } catch (Exception ex) {
+                                        stderr.println("Tomcat Manager - Error during Authorization Header parsing " + ex);
+                                    }
+
+                                    if (weakCredential != null) {
+                                        weakCredentialDescription += String.format("<br /><br /> The weak credentials are "
+                                                + "<b>%s</b><br /><br />", weakCredential);
+                                    }
+
                                     issues.add(new CustomScanIssue(
                                             baseRequestResponse.getHttpService(),
                                             new URL(protocol, url.getHost(), url.getPort(), TOMCAT_MANAGER_PATH),

@@ -224,7 +224,9 @@ public class JBossAdminConsole implements IModule {
                                     jbosstestPOST = helpers.addParameter(jbosstestPOST, helpers.buildParameter("login_form%3Asubmit", "Login", IParameter.PARAM_BODY));
                                     jbosstestPOST = helpers.addParameter(jbosstestPOST, helpers.buildParameter("javax.faces.ViewState", helpers.urlEncode(viewState), IParameter.PARAM_BODY));
 
-                                    List<Map.Entry<String, String>> credentials = WeakPassword.getCredentials();
+                                    WeakPassword wp = new WeakPassword();
+                                    List<Map.Entry<String, String>> credentials = wp.getCredentials();
+        
                                     for (Map.Entry<String, String> credential : credentials) {
                                         byte[] jbosstestPOSTBruteforce = jbosstestPOST;
                                         jbosstestPOSTBruteforce = helpers.addParameter(jbosstestPOSTBruteforce, helpers.buildParameter("login_form%3Aname", credential.getKey(), IParameter.PARAM_BODY));
