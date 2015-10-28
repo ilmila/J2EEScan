@@ -77,7 +77,8 @@ public class JBossAdminConsole implements IModule {
     private static final List<byte[]> GREP_STRINGS = Arrays.asList(
             "<title>JBoss AS Admin".getBytes(),
             "<title>JBoss AS 6 Admin Console</title>".getBytes(),
-            "<title>JBoss EAP Admin Console</title>".getBytes()
+            "<title>JBoss EAP Admin Console</title>".getBytes(),
+            "<title>Embedded Jopr Core</title>".getBytes()
     );
     
     /**
