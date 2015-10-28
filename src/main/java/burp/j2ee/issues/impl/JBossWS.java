@@ -42,7 +42,7 @@ public class JBossWS implements IModule{
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
     private static final String TITLE = "JBoss Web Service Console";
-    private static final String DESCRIPTION = "J2EEscan identifie the JBoss Web Service console "
+    private static final String DESCRIPTION = "J2EEscan identified the JBoss Web Service console "
             + "on the remote system. The console displays all the web services "
             + "exposed by the system leading to a potential information disclosure "
             + "vulnerability. <br /><br />";
