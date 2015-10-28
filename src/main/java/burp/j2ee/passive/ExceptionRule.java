@@ -73,7 +73,7 @@ public class ExceptionRule implements PassiveRule {
                         "Incorrect Error Handling - Apache Tapestry",
                         "J2EEScan identified an Apache Tapestry exception."
                                 + "The remote application does not properly handle application errors, "
-                                + "and application stacktraces are dispalyed to the end user "
+                                + "and application stacktraces are displayed to the end user "
                                 + "leading to information disclosure vulnerability.<br /><br /><b>References</b><br />"
                                 + "http://tapestry.apache.org/overriding-exception-reporting.html<br />"
                                 + "http://tapestry.apache.org/tapestry4.1/developmentguide/exceptionpages.html",
@@ -102,7 +102,7 @@ public class ExceptionRule implements PassiveRule {
                         "Incorrect Error Handling - Grails",
                         "J2EEScan identified a Grails exception."
                                 + "The remote application does not properly handle application errors, "
-                                + "and application stacktraces are dispalyed to the end user "
+                                + "and application stacktraces are displayed to the end user "
                                 + "leading to information disclosure vulnerability.<br /><br /><b>References</b><br />"
                                 + "http://grails.org/plugin/errors",
                         REMEDY_J2EE_ERROR_HANDLING,
@@ -129,7 +129,7 @@ public class ExceptionRule implements PassiveRule {
                         "Incorrect Error Handling - GWT",
                         "J2EEScan identified a GWT exception."
                                 + "The remote application does not properly handle application errors, "
-                                + "and application stacktraces are dispalyed to the end user "
+                                + "and application stacktraces are displayed to the end user "
                                 + "leading to information disclosure vulnerability.<br /><br /><b>References</b><br />"
                                 + "http://www.gwtproject.org/doc/latest/tutorial/RPC.html",
                         REMEDY_J2EE_ERROR_HANDLING,
@@ -164,7 +164,7 @@ public class ExceptionRule implements PassiveRule {
                             baseRequestResponse,
                             "Incorrect Error Handling - Java",
                             "J2EEScan identified a Java exception. The remote application does not properly handle application errors, "
-                                    + "and application stacktraces are dispalyed to the end user "
+                                    + "and application stacktraces are displayed to the end user "
                                     + "leading to information disclosure vulnerability",
                             REMEDY_J2EE_ERROR_HANDLING,
                             Risk.Low,
@@ -197,7 +197,7 @@ public class ExceptionRule implements PassiveRule {
                             baseRequestResponse,
                             "Incorrect Error Handling - JSF",
                             "J2EEScan identified a Java exception. The remote application does not properly handle application errors, "
-                                    + "and application stacktraces are dispalyed to the end user "
+                                    + "and application stacktraces are displayed to the end user "
                                     + "leading to information disclosure vulnerability",
                             REMEDY_J2EE_ERROR_HANDLING,
                             Risk.Low,
