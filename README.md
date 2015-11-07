@@ -141,6 +141,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Apache Axis2 - Web Service Enumeration
  * Apache Axis2 - Admin Console Weak Password
  * Apache Axis2 - Local File Include Vulnerability (OSVDB 59001)
+ * Apache Axis2 - Happy Axis
  
 
 ## How to install ?
@@ -173,6 +174,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Added check for Oracle Glassfish version
  * Added check for Oracle Weblogic version
  * Added check Apache Struts OGNL Console
+ * Added check for Happy Axis
  
 
 ### Version 1.2.3dev (26 Feb, 2015):

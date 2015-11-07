@@ -35,6 +35,14 @@ public class ApacheAxis implements IModule {
             + "the Apache Axis2 console. It was possible to enumerate the registered "
             + "Web Services";
 
+    private static final String TITLE_HAPPY_AXIS = "Happy Axis Page Available";
+    private static final String DESCRIPTION_HAPPY_AXIS = "J2EEscan identified "
+            + "the Happy Axise page available. This test resources allows to detect if some "
+            + "external libreries/dependencies are missing<br /> The test page also could contains"
+            + "internal system information, such as internal classpaths, env variables and internal system properties"
+            + "<br /><br /><b>References:</b><br />"
+            + "http://axis.apache.org/axis/java/install.html#Validate_Axis_with_happyaxis";
+    
     private static final String TITLE_AXIS_ADMIN_CONSOLE = "Apache Axis2 - Admin Console";
     private static final String DESCRIPTION_AXIS_ADMIN_CONSOLE = "J2EEscan identified "
             + "the Apache Axis2 administration console";
@@ -55,13 +63,25 @@ public class ApacheAxis implements IModule {
 
     private static final List<String> AXIS_PATHS = Arrays.asList(
             "/axis2/",
-            "/dswsbobje/" //SAP BusinessObjects path
+            "/axis/",
+            "/dswsbobje/", // SAP BusinessObjects path
+            "/jboss-net/" // JBoss
+    );
+
+    private static final List<String> HAPPY_AXIS_PATHS = Arrays.asList(
+            "/dswsbobje/happyaxis.jsp", // SAP BusinessObjects path
+            "/jboss-net/happyaxis.jsp", // JBoss
+            "/happyaxis.jsp",
+            "/axis2/axis2-web/HappyAxis.jsp",
+            "/axis2-web/HappyAxis.jsp",
+            "/axis/happyaxis.jsp"
     );
 
     private static final String AXIS_SERVICES_PATH = "/services/listServices";
     private static final String AXIS_ADMIN_PATH = "/axis2-admin/";
 
     private static final byte[] GREP_STRING_AXIS_SERVICE_PAGE = "<title>List Services</title>".getBytes();
+    private static final byte[] GREP_STRING_HAPPY_AXIS = "Axis Happiness Page".getBytes();
     private static final byte[] GREP_STRING_AXIS_XML = "<axisconfig".getBytes();
     private static final byte[] GREP_STRING_AXIS_ADMIN = "<title>Login to Axis2 :: Administration".getBytes();
     private static final byte[] GREP_STRING_AXIS_ADMIN_WEAK_PWD = "You are now logged into the Axis2 administration console".getBytes();
@@ -75,7 +95,6 @@ public class ApacheAxis implements IModule {
         List<Map.Entry<String, String>> credentials;
         WeakPassword wp = new WeakPassword();
         credentials = wp.getCredentials();
-        
 
         List<String> listOfPwd = new ArrayList<>();
         for (Map.Entry<String, String> credential : credentials) {
@@ -144,6 +163,52 @@ public class ApacheAxis implements IModule {
 
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
+
+            /**
+             * Test for Happy Axis
+             * http://axis.apache.org/axis/java/install.html#Validate_Axis_with_happyaxis
+             * 
+             *
+             */
+            for (String HAPPY_AXIS_PATH : HAPPY_AXIS_PATHS) {
+
+                try {
+
+                    // Test for happy axies
+                    URL happyAxisUrlToTest = new URL(protocol, url.getHost(), url.getPort(), HAPPY_AXIS_PATH);
+                    byte[] happyAxisTest = helpers.buildHttpRequest(happyAxisUrlToTest);
+                    byte[] happyAxisResponse = callbacks.makeHttpRequest(url.getHost(),
+                            url.getPort(), isSSL, happyAxisTest);
+                    IResponseInfo happyAxisInfo = helpers.analyzeResponse(happyAxisResponse);
+
+                    if (happyAxisInfo.getStatusCode() == 200) {
+
+                        String happyAxisResp = helpers.bytesToString(happyAxisResponse);
+                        String happyAxisRespBody = happyAxisResp.substring(happyAxisInfo.getBodyOffset());
+
+                        // look for matches of our active check grep string
+                        List<int[]> matchHappyAxis = getMatches(helpers.stringToBytes(happyAxisRespBody),
+                                GREP_STRING_HAPPY_AXIS, helpers);
+
+                        if ((matchHappyAxis.size() > 0)) {
+                            stdout.println("Happy Axis detected " + happyAxisUrlToTest.toString());
+
+                            issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(),
+                                    happyAxisUrlToTest,
+                                    new CustomHttpRequestResponse(happyAxisTest, happyAxisResponse, baseRequestResponse.getHttpService()),
+                                    TITLE_HAPPY_AXIS,
+                                    DESCRIPTION_HAPPY_AXIS,
+                                    "Restrict access to Happy Axis debug page",
+                                    Risk.Medium,
+                                    Confidence.Certain
+                                                ));
+                            }     
+                    }
+                } catch (MalformedURLException ex) {
+                     stderr.println("Malformed URL Exception " + ex);
+                }
+            }
 
             for (String AXIS_PATH : AXIS_PATHS) {
 
