@@ -127,6 +127,11 @@ public class JavaServerFacesTraversal implements IModule {
 
                 //get the body of the response
                 byte[] responseBytes = checkRequestResponse.getResponse();
+                
+                if (responseBytes == null){
+                    return issues;
+                }
+                
                 String response = helpers.bytesToString(responseBytes);
 
                 // check the pattern on response body
