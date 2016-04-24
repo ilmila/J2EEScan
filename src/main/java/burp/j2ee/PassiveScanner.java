@@ -10,10 +10,10 @@ import burp.j2ee.passive.ApacheStrutsS2023Rule;
 import burp.j2ee.passive.ApacheTomcatRule;
 import burp.j2ee.passive.ExceptionRule;
 import burp.j2ee.passive.HttpServerHeaderRule;
+import burp.j2ee.passive.JettyRule;
 import burp.j2ee.passive.PassiveRule;
 import burp.j2ee.passive.SqlQueryRule;
 
-import java.io.ByteArrayInputStream;
 
 public class PassiveScanner {
 
@@ -24,7 +24,8 @@ public class PassiveScanner {
         new ExceptionRule(), 
         new HttpServerHeaderRule(), 
         new SqlQueryRule(),
-        new ApacheStrutsS2023Rule()
+        new ApacheStrutsS2023Rule(),
+        new JettyRule(),
     };
 
     public static void scanVulnerabilities(IHttpRequestResponse baseRequestResponse,
@@ -44,11 +45,11 @@ public class PassiveScanner {
 
         String httpServerHeader = HTTPParser.getResponseHeaderValue(respInfo, "Server");
         String contentTypeResponse = HTTPParser.getResponseHeaderValue(respInfo, "Content-Type");
-
+        String xPoweredByHeader = HTTPParser.getResponseHeaderValue(respInfo, "X-Powered-By");
 
         for(PassiveRule scanner : PASSIVE_RULES) {
             scanner.scan(callbacks,baseRequestResponse,reqBody,respBody,reqInfo,respInfo,
-                    httpServerHeader,contentTypeResponse);
+                    httpServerHeader,contentTypeResponse, xPoweredByHeader);
         }
 
     }

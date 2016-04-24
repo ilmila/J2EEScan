@@ -37,7 +37,7 @@ public class ApacheStrutsS2023RuleTest {
         IResponseInfo respInfo = mock(IResponseInfo.class);
 
         ApacheStrutsS2023Rule rule = new ApacheStrutsS2023Rule();
-        rule.scan(cb,reqResp,"",stubResponse,reqInfo,respInfo,"","");
+        rule.scan(cb,reqResp,"",stubResponse,reqInfo,respInfo,"","", "");
 
         if(expectedVulnerableToken) {
             verify(cb).addScanIssue(Matchers.<IScanIssue>any());

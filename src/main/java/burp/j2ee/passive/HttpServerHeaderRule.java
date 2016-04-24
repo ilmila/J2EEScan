@@ -23,7 +23,8 @@ public class HttpServerHeaderRule implements PassiveRule {
     private static final Pattern WEBLOGIC_RULE = Pattern.compile("WebLogic (:?Server )?([\\d\\.]+)", Pattern.DOTALL);
 
     private static final List<Pattern> ORACLE_APPLICATION_SERVER_RE = new ArrayList();
-    static{
+
+    static {
         ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle Application Server Containers for J2EE 10g \\(([\\d\\.]+)\\)", Pattern.DOTALL));
         ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle.Application.Server.10g\\/([\\d\\.]+)", Pattern.DOTALL));
         ORACLE_APPLICATION_SERVER_RE.add(Pattern.compile("Oracle Application Server\\/([\\d\\.]+)", Pattern.DOTALL));
@@ -32,8 +33,8 @@ public class HttpServerHeaderRule implements PassiveRule {
 
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
-                     String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
-                     String httpServerHeader, String contentTypeResponse) {
+            String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
+            String httpServerHeader, String contentTypeResponse, String xPoweredByHeader) {
 
         IExtensionHelpers helpers = callbacks.getHelpers();
 
@@ -53,10 +54,10 @@ public class HttpServerHeaderRule implements PassiveRule {
                         "Information Disclosure - JVM Remote Release Detection",
                         "J2EEscan identified the remote JVM release <b>" + version + "</b>",
                         "Verify the Java updates for the release:<ul>"
-                                + "<li>Java 1.7 http://www.oracle.com/technetwork/java/javase/7u-relnotes-515228.html</li>"
-                                + "<li>Java 1.6 http://www.oracle.com/technetwork/java/javase/releasenotes-136954.html</li>"
-                                + "<li>Java 1.5 http://www.oracle.com/technetwork/articles/javase/overview-137139.html</li>"
-                                + "</ul>",
+                        + "<li>Java 1.7 http://www.oracle.com/technetwork/java/javase/7u-relnotes-515228.html</li>"
+                        + "<li>Java 1.6 http://www.oracle.com/technetwork/java/javase/releasenotes-136954.html</li>"
+                        + "<li>Java 1.5 http://www.oracle.com/technetwork/articles/javase/overview-137139.html</li>"
+                        + "</ul>",
                         Risk.Low,
                         Confidence.Certain
                 ));
@@ -86,20 +87,16 @@ public class HttpServerHeaderRule implements PassiveRule {
                         baseRequestResponse,
                         "Information Disclosure - Jetty " + version,
                         "J2EEscan identified the remote Servlet Container release; "
-                                + "Jetty  version <b>" + version + "</b>.<br />"
-                                + "The potential vulnerabilities for this release are available at:<br />"
-                                + "<ul><li>" + nistLink + "</li></ul><br /><br />",
+                        + "Jetty  version <b>" + version + "</b>.<br />"
+                        + "The potential vulnerabilities for this release are available at:<br />"
+                        + "<ul><li>" + nistLink + "</li></ul><br /><br />",
                         "Configure the remote servlet container to suppress the HTTP Server header using the <i>sendServerVersion</i> directive<br />"
-                                + "http://docs.codehaus.org/display/JETTY/How+to+suppress+the+Server+HTTP+header",
+                        + "http://docs.codehaus.org/display/JETTY/How+to+suppress+the+Server+HTTP+header",
                         Risk.Low,
                         Confidence.Certain
                 ));
             }
         }
-
-
-
-
 
         /**
          * Detect Glassfish
@@ -124,12 +121,12 @@ public class HttpServerHeaderRule implements PassiveRule {
                         baseRequestResponse,
                         "Information Disclosure - Glassfish " + version,
                         "J2EEscan identified the remote Application Server release; "
-                                + "Glassfish  version <b>" + version + "</b>.<br />"
-                                + "The potential vulnerabilities for this release are available at:<br />"
-                                + "<ul><li>" + nistLink + "</li></ul><br /><br />",
+                        + "Glassfish  version <b>" + version + "</b>.<br />"
+                        + "The potential vulnerabilities for this release are available at:<br />"
+                        + "<ul><li>" + nistLink + "</li></ul><br /><br />",
                         "Configure the remote application server to suppress the HTTP Server header<br />"
-                                + "http://blog.eisele.net/2011/05/securing-your-glassfish-hardening-guide.html<br />"
-                                + "https://javadude.wordpress.com/2013/12/06/hide-glassfish-server-information/",
+                        + "http://blog.eisele.net/2011/05/securing-your-glassfish-hardening-guide.html<br />"
+                        + "https://javadude.wordpress.com/2013/12/06/hide-glassfish-server-information/",
                         Risk.Low,
                         Confidence.Certain
                 ));
@@ -162,9 +159,9 @@ public class HttpServerHeaderRule implements PassiveRule {
                         baseRequestResponse,
                         "Information Disclosure - WebLogic " + version,
                         "J2EEscan identified the remote Application Server release; "
-                                + "WebLogic  version <b>" + version + "</b>.<br />"
-                                + "The potential vulnerabilities for this release are available at:<br />"
-                                + "<ul><li>" + nistLink + "</li></ul><br /><br />",
+                        + "WebLogic  version <b>" + version + "</b>.<br />"
+                        + "The potential vulnerabilities for this release are available at:<br />"
+                        + "<ul><li>" + nistLink + "</li></ul><br /><br />",
                         "Configure the remote application server to suppress the HTTP Server header<br />",
                         Risk.Information,
                         Confidence.Certain
@@ -202,12 +199,12 @@ public class HttpServerHeaderRule implements PassiveRule {
                             baseRequestResponse,
                             "Information Disclosure - Oracle Application Server " + version,
                             "J2EEscan identified the remote Application Server release; "
-                                    + "Oracle Application Server  version <b>" + version + "</b>.<br />"
-                                    + "The potential vulnerabilities for this release are available at:<br />"
-                                    + "<ul><li>" + nistLink + "</li></ul><br /><br />",
+                            + "Oracle Application Server  version <b>" + version + "</b>.<br />"
+                            + "The potential vulnerabilities for this release are available at:<br />"
+                            + "<ul><li>" + nistLink + "</li></ul><br /><br />",
                             "Configure the remote application server to suppress the HTTP Server header<br />"
-                                    + "http://docs.oracle.com/cd/E23943_01/web.1111/e10144/faq.htm#HSADM939<br />"
-                                    + "https://oamidam.wordpress.com/2011/06/01/controlling-the-server-header-with-oracle-http-server-and-oracle-web-cache-11g/",
+                            + "http://docs.oracle.com/cd/E23943_01/web.1111/e10144/faq.htm#HSADM939<br />"
+                            + "https://oamidam.wordpress.com/2011/06/01/controlling-the-server-header-with-oracle-http-server-and-oracle-web-cache-11g/",
                             Risk.Low,
                             Confidence.Certain
                     ));
@@ -216,6 +213,31 @@ public class HttpServerHeaderRule implements PassiveRule {
                 }
             }
 
+        }
+
+        
+        /**
+         * 
+         * NodeJS detection
+         * 
+         * Example:
+         * X-Powered-By: Express
+         * 
+         * 
+         */
+        if (xPoweredByHeader != null) {
+            if (xPoweredByHeader.trim().equals("Express")) {
+                callbacks.addScanIssue(new CustomScanIssue(
+                        baseRequestResponse.getHttpService(),
+                        reqInfo.getUrl(),
+                        baseRequestResponse,
+                        "NodeJS detected",
+                        "J2EEscan identified the NodeJS framework,",
+                        "",
+                        Risk.Information,
+                        Confidence.Certain
+                ));
+            }
         }
 
     }

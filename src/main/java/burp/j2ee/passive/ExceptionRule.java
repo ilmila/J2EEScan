@@ -23,7 +23,7 @@ public class ExceptionRule implements PassiveRule {
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
                      String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
-                     String httpServerHeader, String contentTypeResponse) {
+                     String httpServerHeader, String contentTypeResponse, String xPoweredByHeader) {
 
         IExtensionHelpers helpers = callbacks.getHelpers();
         byte[] rawResponse = baseRequestResponse.getResponse();
@@ -151,6 +151,7 @@ public class ExceptionRule implements PassiveRule {
                     "at org.apache.coyote.".getBytes(),
                     "at org.jboss.seam.".getBytes(),
                     "at org.apache.tomcat.".getBytes(),
+                    "<title>JSP Processing Error</title>".getBytes(),  // WAS
                     "The full stack trace of the root cause is available in".getBytes());
 
             for (byte[] exc : javaxServletExceptions) {

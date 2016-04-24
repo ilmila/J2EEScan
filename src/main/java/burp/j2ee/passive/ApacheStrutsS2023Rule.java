@@ -27,7 +27,7 @@ public class ApacheStrutsS2023Rule implements PassiveRule {
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
                      String reqBody, String respBody, IRequestInfo reqInfo, IResponseInfo respInfo,
-                     String httpServerHeader, String contentTypeResponse) {
+                     String httpServerHeader, String contentTypeResponse, String xPoweredByHeader) {
 
         //IExtensionHelpers helpers = callbacks.getHelpers();
 
