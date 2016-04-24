@@ -42,7 +42,7 @@ public class ApacheAxis implements IModule {
             + "internal system information, such as internal classpaths, env variables and internal system properties"
             + "<br /><br /><b>References:</b><br />"
             + "http://axis.apache.org/axis/java/install.html#Validate_Axis_with_happyaxis";
-    
+
     private static final String TITLE_AXIS_ADMIN_CONSOLE = "Apache Axis2 - Admin Console";
     private static final String DESCRIPTION_AXIS_ADMIN_CONSOLE = "J2EEscan identified "
             + "the Apache Axis2 administration console";
@@ -65,23 +65,32 @@ public class ApacheAxis implements IModule {
             "/axis2/",
             "/axis/",
             "/dswsbobje/", // SAP BusinessObjects path
-            "/jboss-net/" // JBoss
+            "/jboss-net/", // JBoss
+            "/tomcat/axis/",
+            "/wssgs/", //<h1>JBuilder Apache Axis Admin Console</h1> ..<title>Apache-Axis</title>
+            "/tresearch/" // JBuilder Apache Axis Admin Console
     );
 
     private static final List<String> HAPPY_AXIS_PATHS = Arrays.asList(
             "/dswsbobje/happyaxis.jsp", // SAP BusinessObjects path
+            "/dswsbobje//happyaxis.jsp", // SAP BusinessObjects path
             "/jboss-net/happyaxis.jsp", // JBoss
+            "/jboss-net//happyaxis.jsp", // JBoss
             "/happyaxis.jsp",
             "/axis2/axis2-web/HappyAxis.jsp",
-            "/axis2-web/HappyAxis.jsp",
-            "/axis/happyaxis.jsp"
+            "/axis2-web//HappyAxis.jsp",
+            "/axis//happyaxis.jsp",
+            "/axis2//axis2-web/HappyAxis.jsp",
+            "/wssgs/happyaxis.jsp", //JBuilder Apache Axis Admin Console
+            "/tresearch/happyaxis.jsp"
     );
 
     private static final String AXIS_SERVICES_PATH = "/services/listServices";
     private static final String AXIS_ADMIN_PATH = "/axis2-admin/";
 
     private static final byte[] GREP_STRING_AXIS_SERVICE_PAGE = "<title>List Services</title>".getBytes();
-    private static final byte[] GREP_STRING_HAPPY_AXIS = "Axis Happiness Page".getBytes();
+    // To match both Axis2 and Axis
+    private static final byte[] GREP_STRING_HAPPY_AXIS = "Happiness Page".getBytes();
     private static final byte[] GREP_STRING_AXIS_XML = "<axisconfig".getBytes();
     private static final byte[] GREP_STRING_AXIS_ADMIN = "<title>Login to Axis2 :: Administration".getBytes();
     private static final byte[] GREP_STRING_AXIS_ADMIN_WEAK_PWD = "You are now logged into the Axis2 administration console".getBytes();
@@ -167,7 +176,7 @@ public class ApacheAxis implements IModule {
             /**
              * Test for Happy Axis
              * http://axis.apache.org/axis/java/install.html#Validate_Axis_with_happyaxis
-             * 
+             *
              *
              */
             for (String HAPPY_AXIS_PATH : HAPPY_AXIS_PATHS) {
@@ -202,14 +211,16 @@ public class ApacheAxis implements IModule {
                                     "Restrict access to Happy Axis debug page",
                                     Risk.Medium,
                                     Confidence.Certain
-                                                ));
-                            }     
+                            ));
+                        }
                     }
                 } catch (MalformedURLException ex) {
-                     stderr.println("Malformed URL Exception " + ex);
+                    stderr.println("Malformed URL Exception " + ex);
                 }
             }
 
+            
+            
             for (String AXIS_PATH : AXIS_PATHS) {
 
                 try {
@@ -247,27 +258,29 @@ public class ApacheAxis implements IModule {
                                     Risk.Low,
                                     Confidence.Certain
                             ));
-                        }
 
-                        stdout.println("Weak Password tests will be executed on " + axisAdminUrlToTest.toString());
+                            stdout.println("Weak Password tests will be executed on " + axisAdminUrlToTest.toString());
 
-                        String result = axisAdminBruteforcer(axisAdminUrlToTest, callbacks, baseRequestResponse);
+                            String result = axisAdminBruteforcer(axisAdminUrlToTest, callbacks, baseRequestResponse);
 
-                        if (result != null) {
-                            String pwdDetail = "<br /><br />The password for the admin account is <b>" + result + "</b><br /><br /";
-                            issues.add(new CustomScanIssue(
-                                    baseRequestResponse.getHttpService(),
-                                    axisAdminUrlToTest,
-                                    new CustomHttpRequestResponse(axisAdminTest, axisAdminResponse, baseRequestResponse.getHttpService()),
-                                    TITLE_AXIS_ADMIN_CONSOLE_WEAK_PWD,
-                                    DESCRIPTION_AXIS_ADMIN_CONSOLE_WEAK_PWD + pwdDetail,
-                                    "Change the weak password and restrict access to the management console only from trusted hosts/networks",
-                                    Risk.High,
-                                    Confidence.Certain));
+                            if (result != null) {
+                                String pwdDetail = "<br /><br />The password for the admin account is <b>" + result + "</b><br /><br /";
+                                issues.add(new CustomScanIssue(
+                                        baseRequestResponse.getHttpService(),
+                                        axisAdminUrlToTest,
+                                        new CustomHttpRequestResponse(axisAdminTest, axisAdminResponse, baseRequestResponse.getHttpService()),
+                                        TITLE_AXIS_ADMIN_CONSOLE_WEAK_PWD,
+                                        DESCRIPTION_AXIS_ADMIN_CONSOLE_WEAK_PWD + pwdDetail,
+                                        "Change the weak password and restrict access to the management console only from trusted hosts/networks",
+                                        Risk.High,
+                                        Confidence.Certain));
+                            }
                         }
 
                     }
                     // End axis2 administration console
+                    
+                    
 
                     // Enumerate the remote web services
                     URL urlToTest = new URL(protocol, url.getHost(), url.getPort(), AXIS_PATH + AXIS_SERVICES_PATH);
