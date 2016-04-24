@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 
+import burp.HTTPMatcher;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -43,14 +44,14 @@ public class LFIAbsoluteModule implements IModule{
      
     
     private PrintWriter stderr;
-    private static final byte[] GREP_STRING = "root:".getBytes();
     
     // the ".../....///" sequences, can bypas the blacklist patterns that removes
     // "../" and "./" chars
     private static final List<byte[]> LFI_INJECTION_TESTS = Arrays.asList(
             ".../....///.../....///.../....///.../....///.../....///.../....///etc/passwd".getBytes(),
             ".../...//.../...//.../...//.../...//.../...//.../...//.../...//.../...//etc/passwd".getBytes(),
-            "file:///etc/passwd".getBytes()
+            "file:///etc/passwd".getBytes(),
+            "%2fetc%2fpasswd".getBytes()
     );    
     
     
@@ -73,8 +74,8 @@ public class LFIAbsoluteModule implements IModule{
                 
                 // look for matches of our active check grep string
                 byte[] response =  checkRequestResponse.getResponse();
-                List<int[]> matches = getMatches(response, GREP_STRING, helpers);
-                if (matches.size() > 0) {
+                
+                if (HTTPMatcher.isEtcPasswdFile(response, helpers)) {
 
                     issues.add(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
