@@ -87,7 +87,7 @@ public class ApacheStrutsWebConsole implements IModule {
                                 TITLE,
                                 DESCRIPTION,
                                 REMEDY,
-                                Risk.High,
+                                Risk.Low,
                                 Confidence.Certain
                         ));
                     }
@@ -139,7 +139,7 @@ public class ApacheStrutsWebConsole implements IModule {
                                 TITLE,
                                 DESCRIPTION,
                                 REMEDY,
-                                Risk.High,
+                                Risk.Low,
                                 Confidence.Certain
                         ));
                     }
@@ -149,7 +149,7 @@ public class ApacheStrutsWebConsole implements IModule {
             }
 
         }
-
+        
         return issues;
     }
 }
