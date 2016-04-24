@@ -46,7 +46,6 @@ public class HTTPMatcher {
     public static List<String> getServletsFromWebDescriptors(String webxml) {
         List<String> servlets = new ArrayList();
 
-
         Matcher matcher = SERVLET_CLA_PATTERN.matcher(webxml);
         while (matcher.find()) {
             int numEntries = matcher.groupCount();
@@ -107,10 +106,18 @@ public class HTTPMatcher {
     }
 
     public static boolean isEtcPasswdFile(byte[] response, IExtensionHelpers helpers) {
-        final byte[] PASSWD_PATTERN = "root:".getBytes();
-        List<int[]> matchesPasswd = getMatches(response, PASSWD_PATTERN, helpers);
+        final byte[] PASSWD_PATTERN_1 = "root:".getBytes();
+        final byte[] PASSWD_PATTERN_2 = "bin/".getBytes();
+        List<int[]> matchesPasswd1 = getMatches(response, PASSWD_PATTERN_1, helpers);
 
-        return (matchesPasswd.size() > 0);
+        if (matchesPasswd1.size() > 0) {
+            List<int[]> matchesPasswd2 = getMatches(response, PASSWD_PATTERN_2, helpers);
+            if (matchesPasswd2.size() > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static boolean isEtcShadowFile(byte[] response, IExtensionHelpers helpers) {
@@ -206,8 +213,8 @@ public class HTTPMatcher {
     }
 
     /**
-     * Iterate on a list of URIs paths and apply some modifiers to 
-     * circumvent some weak ACL protections or weak/wrong mod_rewrite rules.
+     * Iterate on a list of URIs paths and apply some modifiers to circumvent
+     * some weak ACL protections or weak/wrong mod_rewrite rules.
      *
      * Example: * CWE-50: Path Equivalence: '//multiple/leading/slash' *
      * https://cwe.mitre.org/data/definitions/50.html
@@ -220,8 +227,43 @@ public class HTTPMatcher {
         for (int i = 0; i < uripaths.size(); i += 1) {
             modifiedPaths.set(i, "/" + uripaths.get(i));
         }
-            
-            
+
         return modifiedPaths;
+    }
+
+    /**
+     * Based on the URL given, try to identify if the remote application is Java
+     * based or not.
+     *
+     * Useful to skip some java specific tests on a different technology
+     *
+     * TODO Simple pattern matching, improve it
+     *
+     */
+    public static Boolean isJavaApplicationByURL(URL url) {
+
+        if (url == null) {
+            return false;
+        }
+
+        String curExtension = "";
+
+        try {
+            int i = url.getPath().lastIndexOf('.');
+            if (i > 0) {
+                curExtension = curExtension.substring(i + 1);
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        
+        List genericoExtensions = new ArrayList<>();
+        genericoExtensions.add("php");
+        genericoExtensions.add("asp");
+        genericoExtensions.add("cgi");
+        genericoExtensions.add("pl");
+
+        return genericoExtensions.contains(curExtension);
+
     }
 }
