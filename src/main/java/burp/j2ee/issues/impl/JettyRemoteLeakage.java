@@ -5,25 +5,28 @@ import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
+import burp.IRequestInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
+import burp.j2ee.IssuesHandler;
 import burp.j2ee.Risk;
 import burp.j2ee.issues.IModule;
 
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
  * Detection of the Jetty Remote Leak Shared Buffers research of GDS Security
- * 
+ *
  * References:
- * 
+ *
  * http://blog.gdssecurity.com/labs/2015/2/25/jetleak-vulnerability-remote-leakage-of-shared-buffers-in-je.html
- * https://github.com/GDSSecurity/Jetleak-Testing-Script 
+ * https://github.com/GDSSecurity/Jetleak-Testing-Script
  * https://twitter.com/gdssecurity
  *
  */
@@ -42,22 +45,6 @@ public class JettyRemoteLeakage implements IModule {
 
     private PrintWriter stderr;
 
-    
-    private Boolean isJettyDetected(IBurpExtenderCallbacks callbacks) {
-        Boolean hasJettyBeenDetected = false;
-
-        String jettyIssue = "Information Disclosure - Jetty";
-
-        IScanIssue[] allIssues;
-        allIssues = callbacks.getScanIssues(null);
-        for (IScanIssue a : allIssues) {
-            if (a.getIssueName().contains(jettyIssue)) {
-                return true;
-            }
-        }
-
-        return hasJettyBeenDetected;
-    }
 
     @Override
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
@@ -69,9 +56,18 @@ public class JettyRemoteLeakage implements IModule {
 
         IHttpRequestResponse jettyResponse;
 
+        IRequestInfo reqInfo = helpers.analyzeRequest(baseRequestResponse);
+
+        URL url = reqInfo.getUrl();
+        String host = url.getHost();
+        String protocol = url.getProtocol();
+        
         // Execute the test only if Burpsuite detected a Jetty Servlet container
         // to limitate unnecessary HTTP requests
-        if (!isJettyDetected(callbacks)) {
+        if (IssuesHandler.isvulnerabilityFound(callbacks,
+                "Information Disclosure - Jetty",
+                protocol,
+                host)) {
             return issues;
         }
 
