@@ -29,7 +29,7 @@ public class CustomScanIssue implements IScanIssue {
         this.httpService = httpService;
         this.url = url;
         this.httpMessages = httpMessages;
-        this.name = name;
+        this.name = "J2EEScan - " + name;
         this.detail = detail;
         this.remedy = remedy;
         this.severity = severity;
