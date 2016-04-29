@@ -1,5 +1,7 @@
 # J2EEScan - J2EE Security Scanner Burp Suite Plugin
 
+[![Join the chat at https://gitter.im/ilmila/J2EEScan](https://badges.gitter.im/ilmila/J2EEScan.svg)](https://gitter.im/ilmila/J2EEScan?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is J2EEScan
 J2EEScan is a plugin for [Burp Suite Proxy](http://portswigger.net/). 
 The goal of this plugin is to improve the test coverage during 
