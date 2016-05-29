@@ -216,7 +216,8 @@ public class HTTPMatcher {
      * Iterate on a list of URIs paths and apply some modifiers to circumvent
      * some weak ACL protections or weak/wrong mod_rewrite rules.
      *
-     * Example: * CWE-50: Path Equivalence: '//multiple/leading/slash' *
+     * Example: 
+     * CWE-50: Path Equivalence: '//multiple/leading/slash' *
      * https://cwe.mitre.org/data/definitions/50.html
      *
      */
@@ -248,22 +249,22 @@ public class HTTPMatcher {
 
         String curExtension = "";
 
-        try {
-            int i = url.getPath().lastIndexOf('.');
-            if (i > 0) {
-                curExtension = curExtension.substring(i + 1);
-            }
-        } catch (Exception e) {
+        int i = url.getPath().lastIndexOf('.');
+        if (i > 0) {
+            curExtension = url.getPath().substring(i + 1);
+        } else {
+            // If the path does not contain an extension
+            // fallback and return true to minimize false negatives on checks
             return true;
         }
-        
-        List genericoExtensions = new ArrayList<>();
-        genericoExtensions.add("php");
-        genericoExtensions.add("asp");
-        genericoExtensions.add("cgi");
-        genericoExtensions.add("pl");
 
-        return genericoExtensions.contains(curExtension);
+        List notJ2EETechs = new ArrayList<>();
+        notJ2EETechs.add("php");
+        notJ2EETechs.add("asp");
+        notJ2EETechs.add("cgi");
+        notJ2EETechs.add("pl");
+
+        return (!notJ2EETechs.contains(curExtension));
 
     }
 }

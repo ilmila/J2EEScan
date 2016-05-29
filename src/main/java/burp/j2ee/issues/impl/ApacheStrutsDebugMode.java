@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import static burp.HTTPMatcher.getMatches;
+import static burp.HTTPMatcher.isJavaApplicationByURL;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -79,42 +80,41 @@ public class ApacheStrutsDebugMode implements IModule {
         IRequestInfo reqInfo = callbacks.getHelpers().analyzeRequest(baseRequestResponse);
         URL url = reqInfo.getUrl();
 
-        if (url.getPath().contains(".do")
-                || url.getPath().contains(".action")) {
+        if (!isJavaApplicationByURL(url)) {
+            return issues;
+        }
+ 
+        byte[] rawrequest = baseRequestResponse.getRequest();
+        List<IParameter> parameters = reqInfo.getParameters();
 
-            byte[] rawrequest = baseRequestResponse.getRequest();
-            List<IParameter> parameters = reqInfo.getParameters();
+        //Remove URI parameters
+        for (IParameter param : parameters) {
+            rawrequest = callbacks.getHelpers().removeParameter(rawrequest, param);
+        }
 
-            //Remove URI parameters
-            for (IParameter param : parameters) {
-                rawrequest = callbacks.getHelpers().removeParameter(rawrequest, param);
-            }
+        rawrequest = callbacks.getHelpers().addParameter(rawrequest,
+                callbacks.getHelpers().buildParameter("debug", "console", IParameter.PARAM_URL)
+        );
 
-            rawrequest = callbacks.getHelpers().addParameter(rawrequest,
-                    callbacks.getHelpers().buildParameter("debug", "console", IParameter.PARAM_URL)
-            );
+        // make a request containing our injection test in the insertion point
+        IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
+                baseRequestResponse.getHttpService(), rawrequest);
 
-            // make a request containing our injection test in the insertion point
-            IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
-                    baseRequestResponse.getHttpService(), rawrequest);
+        byte[] response = checkRequestResponse.getResponse();
+        List<int[]> matches = getMatches(response, GREP_STRING, helpers);
 
-            byte[] response = checkRequestResponse.getResponse();
-            List<int[]> matches = getMatches(response, GREP_STRING, helpers);
+        if (matches.size() > 0) {
 
-            if (matches.size() > 0) {
-
-                issues.add(new CustomScanIssue(
-                        baseRequestResponse.getHttpService(),
-                        reqInfo.getUrl(),
-                        checkRequestResponse,
-                        TITLE,
-                        DESCRIPTION,
-                        REMEDY,
-                        Risk.High,
-                        Confidence.Certain
-                ));
-            }
-
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    reqInfo.getUrl(),
+                    checkRequestResponse,
+                    TITLE,
+                    DESCRIPTION,
+                    REMEDY,
+                    Risk.High,
+                    Confidence.Certain
+            ));
         }
 
         return issues;
