@@ -5,7 +5,7 @@
 
     <groupId>org.em</groupId>
     <artifactId>J2EEScan</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <packaging>jar</packaging>
 
     <dependencies>

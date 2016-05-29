@@ -1,5 +1,9 @@
 # J2EEScan - J2EE Security Scanner Burp Suite Plugin
 
+[![Join the chat at https://gitter.im/ilmila/J2EEScan](https://badges.gitter.im/ilmila/J2EEScan.svg)](https://gitter.im/ilmila/J2EEScan?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://PayPal.Me/ilmila)
+
+
+
 ## What is J2EEScan
 J2EEScan is a plugin for [Burp Suite Proxy](http://portswigger.net/). 
 The goal of this plugin is to improve the test coverage during 
@@ -48,8 +52,10 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Extended Path Traversal Scan
  * AJP Service Detection - thanks to [@ikki](https://twitter.com/_ikki)
  * Spring Boot Actuator console
+ * UTF8 Response Splitting
+ * JK Management Endpoints
+ * Pivotal Spring Traversal (CVE-2014-3625)
  
-
 **Apache Struts**
 
  * Apache Struts 2 S2-023 - thanks to [@h3xstream](https://twitter.com/h3xstream)
@@ -57,6 +63,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Apache Struts 2 S2-017
  * Apache Struts 2 S2-020
  * Apache Struts 2 S2-021
+ * Apache Struts 2 S2-032
  * Apache Struts DevMode Enabled
  * Apache Struts OGNL Console
 
@@ -112,6 +119,8 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * JBoss Admin Console Weak Password
  * JBoss JMX/Web Console Not Password Protected
  * JBoss JMX Invoker Remote Command Execution
+ * JBoss Undertow Directory Traversal (CVE-2014-7816)
+ * JBoss jBPM Admin Console
 
 **Tomcat**
 
@@ -143,17 +152,46 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Apache Axis2 - Local File Include Vulnerability (OSVDB 59001)
  * Apache Axis2 - Happy Axis
  
+**NodeJS**
+
+ * NodeJS HTTP Redirect (CVE-2015-1164)
+ * NodeJS HTTP Response Splitting (CVE-2016-2216)
+
+
 
 ## How to install ?
 
  * From "Cookie jar" section in "Options" -> "Sessions" enable the Scanner field
- * Load the J2EEscan jar in the Burp Extender tab, or download it from BApp Store
+ * Load the J2EEscan jar in the Burp Extender tab
  * The plugin requires at least Java 1.7
+
+
+## Contributors:
+
+Special thanks to
+
+  * @h3xstream
+  * @ikki
 
 
 ## Release Notes
 
-### Current branch:
+
+### Version 1.2.5 (29 May, 2016):
+ * Added check for UTF8 Response Splitting
+ * Added check for JBoss Undertow Directory Traversal (CVE-2014-7816)
+ * Added check for NodeJS HTTP Redirect (CVE-2015-1164)
+ * Added check for NodeJS HTTP Response Splitting (CVE-2016-2216)
+ * Added check for JK Management Endpoints
+ * Added check for Pivotal Spring Traversal (CVE-2014-3625)
+ * Added check for JBoss jBPM Admin Consoles
+ * Adedd check for Apache Struts 2 S2-032 (CVE-2016-3081)
+ * Improved LFI payloads
+ * Improved EL Injection tests
+ * Improved WS Axis security checks
+
+
+### Version 1.2.4 (26 Nov, 2015):
  * Added check for Spring Boot Actuator console
  * Improved LFI module with new UTF-8 payloads
  * Improved EL Injection with new payloads
@@ -175,8 +213,8 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
  * Added check for Oracle Weblogic version
  * Added check Apache Struts OGNL Console
  * Added check for Happy Axis
- 
 
+ 
 ### Version 1.2.3dev (26 Feb, 2015):
  * Added check for Jetty Remote Leak Shared Buffers (CVE-2015-2080) found by [@gdssecurity](https://twitter.com/gdssecurity/)
  * Improved check for Information Disclosure Issues - Remote JVM version
