@@ -170,8 +170,9 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 
 Special thanks to
 
-  * @h3xstream
-  * @ikki
+  * [@h3xstream](https://twitter.com/h3xstream)
+  * [@ikki](https://twitter.com/_ikki)
+  * [@Caligin35](https://twitter.com/Caligin35)
 
 
 ## Release Notes
