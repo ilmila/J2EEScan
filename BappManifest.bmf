@@ -1,6 +1,7 @@
 Uuid: 7ec6d429fed04cdcb6243d8ba7358880
 ExtensionType: 1
 Name: J2EEScan
+RepoName: j2ee-scan
 ScreenVersion: 1.2.5
 SerialVersion: 3
 MinPlatformVersion: 0
