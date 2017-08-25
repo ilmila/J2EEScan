@@ -57,8 +57,8 @@ public class ELInjection implements IModule {
         // Execute a basic algorithm operation to detect OGNL code execution
         int MAX_RANDOM_INT = 500;
         Random rand = new Random();
-        final int firstInt = rand.nextInt(MAX_RANDOM_INT) + 2;
-        final int secondInt = rand.nextInt(MAX_RANDOM_INT) + 2;
+        final int firstInt = rand.nextInt(MAX_RANDOM_INT) + 42 + 42 + rand.nextInt(MAX_RANDOM_INT);
+        final int secondInt = rand.nextInt(MAX_RANDOM_INT) + 42 + 42 + rand.nextInt(MAX_RANDOM_INT);
         final String multiplication = Integer.toString(firstInt * secondInt);
 
         byte[] EL_TEST = "(new+java.util.Scanner((T(java.lang.Runtime).getRuntime().exec(\"cat+/etc/passwd\").getInputStream()),\"UTF-8\")).useDelimiter(\"\\\\A\").next()".getBytes();
