@@ -69,6 +69,7 @@ public class ELInjection implements IModule {
                 put("#{applicationScope}".getBytes(), "javax.servlet.context".getBytes());
                 put(String.format("${%d*%d}", firstInt, secondInt).getBytes(), multiplication.getBytes());
                 put(String.format("#{%d*%d}", firstInt, secondInt).getBytes(), multiplication.getBytes());
+                put(String.format("{{%d*%d}}", firstInt, secondInt).getBytes(), multiplication.getBytes());
             }
         };
 
