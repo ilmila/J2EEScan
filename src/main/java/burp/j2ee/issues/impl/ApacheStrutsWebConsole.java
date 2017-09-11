@@ -1,11 +1,13 @@
 package burp.j2ee.issues.impl;
 
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getApplicationContext;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
 import burp.IRequestInfo;
+import burp.IResponseInfo;
 import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
@@ -20,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-
 
 public class ApacheStrutsWebConsole implements IModule {
 
@@ -42,7 +42,6 @@ public class ApacheStrutsWebConsole implements IModule {
 
     private PrintWriter stderr;
 
-    
     @Override
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
@@ -58,7 +57,6 @@ public class ApacheStrutsWebConsole implements IModule {
         int port = url.getPort();
         String protocol = url.getProtocol();
 
-
         String system = host.concat(Integer.toString(port));
 
         // System not yet tested for this vulnerability
@@ -66,7 +64,8 @@ public class ApacheStrutsWebConsole implements IModule {
 
             hs.add(system);
 
-            for (String webconsole_path : STRUTS_WEBCONSOLE_PATHS) {
+            List<String> STRUTS_WEBCONSOLE_PATHS_MUTATED = URIMutator(STRUTS_WEBCONSOLE_PATHS);
+            for (String webconsole_path : STRUTS_WEBCONSOLE_PATHS_MUTATED) {
 
                 try {
                     URL urlToTest = new URL(protocol, url.getHost(), url.getPort(), webconsole_path);
@@ -76,21 +75,28 @@ public class ApacheStrutsWebConsole implements IModule {
                     IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                             baseRequestResponse.getHttpService(), webconsoleRequest);
 
-                    // look for matches of our active check grep string
-                    List<int[]> matches = getMatches(checkRequestResponse.getResponse(), GREP_STRING, helpers);
-                    if (matches.size() > 0) {
+                    byte[] response = checkRequestResponse.getResponse();
+                    IResponseInfo responseInfo = helpers.analyzeResponse(response);
 
-                        issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(),
-                                reqInfo.getUrl(),
-                                checkRequestResponse,
-                                TITLE,
-                                DESCRIPTION,
-                                REMEDY,
-                                Risk.Low,
-                                Confidence.Certain
-                        ));
+                    if (responseInfo.getStatusCode() == 200) {
+
+                        // look for matches of our active check grep string
+                        List<int[]> matches = getMatches(response, GREP_STRING, helpers);
+                        if (matches.size() > 0) {
+
+                            issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(),
+                                    reqInfo.getUrl(),
+                                    checkRequestResponse,
+                                    TITLE,
+                                    DESCRIPTION,
+                                    REMEDY,
+                                    Risk.Low,
+                                    Confidence.Certain
+                            ));
+                        }
                     }
+
                 } catch (MalformedURLException ex) {
                     stderr.println("Error creating URL " + ex.getMessage());
                 }
@@ -128,20 +134,26 @@ public class ApacheStrutsWebConsole implements IModule {
                     IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                             baseRequestResponse.getHttpService(), webconsoleRequest);
 
-                    // look for matches of our active check grep string
-                    List<int[]> matches = getMatches(checkRequestResponse.getResponse(), GREP_STRING, helpers);
-                    if (matches.size() > 0) {
+                    byte[] response = checkRequestResponse.getResponse();
+                    IResponseInfo responseInfo = helpers.analyzeResponse(response);
 
-                        issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(),
-                                reqInfo.getUrl(),
-                                checkRequestResponse,
-                                TITLE,
-                                DESCRIPTION,
-                                REMEDY,
-                                Risk.Low,
-                                Confidence.Certain
-                        ));
+                    if (responseInfo.getStatusCode() == 200) {
+
+                        // look for matches of our active check grep string
+                        List<int[]> matches = getMatches(response, GREP_STRING, helpers);
+                        if (matches.size() > 0) {
+
+                            issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(),
+                                    reqInfo.getUrl(),
+                                    checkRequestResponse,
+                                    TITLE,
+                                    DESCRIPTION,
+                                    REMEDY,
+                                    Risk.Low,
+                                    Confidence.Certain
+                            ));
+                        }
                     }
                 } catch (MalformedURLException ex) {
                     stderr.println("Error creating URL " + ex.getMessage());
@@ -149,7 +161,7 @@ public class ApacheStrutsWebConsole implements IModule {
             }
 
         }
-        
+
         return issues;
     }
 }

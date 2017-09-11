@@ -2,6 +2,7 @@ package burp.j2ee.issues.impl;
 
 import burp.j2ee.CustomScanIssue;
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -83,7 +84,8 @@ public class JKStatus implements IModule{
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String JK_ENDPOINT : JK_ENDPOINTS) {
+            List<String> JK_ENDPOINTS_MUTATED = URIMutator(JK_ENDPOINTS);
+            for (String JK_ENDPOINT : JK_ENDPOINTS_MUTATED) {
 
                 try {
 

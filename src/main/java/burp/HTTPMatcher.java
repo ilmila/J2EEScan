@@ -120,6 +120,18 @@ public class HTTPMatcher {
         return false;
     }
 
+    public static boolean isWinIni(byte[] response, IExtensionHelpers helpers) {
+        final byte[] WININI_PATTERN = "for 16-bit app support".getBytes();
+
+        List<int[]> match = getMatches(response, WININI_PATTERN, helpers);
+
+        if (match.size() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static boolean isEtcShadowFile(byte[] response, IExtensionHelpers helpers) {
         final byte[] SHADOW_PATTERN = "root:".getBytes();
         List<int[]> matchesShadow = getMatches(response, SHADOW_PATTERN, helpers);
@@ -216,19 +228,98 @@ public class HTTPMatcher {
      * Iterate on a list of URIs paths and apply some modifiers to circumvent
      * some weak ACL protections or weak/wrong mod_rewrite rules.
      *
-     * Example: 
-     * CWE-50: Path Equivalence: '//multiple/leading/slash' *
+     * Example: CWE-50: Path Equivalence: '//multiple/leading/slash' *
      * https://cwe.mitre.org/data/definitions/50.html
+     *
+     * Path Equivalence Semicolon Authorization Bypass GET
+     * /private/administrative/login.htm -> 403
+     * /private/administrative;/login.htm -> 200 OK
+     *
+     * Invalid UTF8 . /admin/test/admin/login.jsp -> 403
+     * /admin/test/%c0%afadmin/login.jsp -> 200 OK
      *
      */
     public static List URIMutator(List<String> uripaths) {
         List<String> modifiedPaths = new ArrayList<>();
         modifiedPaths.addAll(uripaths);
 
+        // CWE-50 Path Equivalence: '//multiple/leading/slash'
         for (int i = 0; i < uripaths.size(); i += 1) {
-            modifiedPaths.set(i, "/" + uripaths.get(i));
+            String curPath = uripaths.get(i);
+            if (!"/".equals(curPath)) {
+                modifiedPaths.add("/" + curPath);
+            }
         }
 
+        // CWE-41 Path Equivalence: '//multiple//leading//slash'
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String curPath = uripaths.get(i);
+            if (!"/".equals(curPath)) {
+                modifiedPaths.add(curPath.replaceAll("/", "//"));
+            }
+        }
+
+        // Path Equivalence Semicolon 
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+                int ind = reqPath.lastIndexOf("/");
+                if (ind > 0) {
+                    String semicolonPath = new StringBuilder(reqPath).replace(ind, ind + 1, ";/").toString();
+                    modifiedPaths.add(semicolonPath);
+                }
+            }
+        }
+
+        // Invalid UTF8 %c0%af in URL to bypass WAF or weak ACLs
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+
+                int currentIndex = reqPath.indexOf("/");
+                while (currentIndex >= 0) {
+                    String utf8DotPath = new StringBuilder(reqPath).replace(currentIndex, currentIndex + 1, "/%c0%af").toString();
+                    modifiedPaths.add(utf8DotPath);
+                    
+                    currentIndex = reqPath.indexOf("/", currentIndex + 1);
+                    
+                }
+            }
+        }
+        
+        // Invalid %2f
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+
+                int currentIndex = reqPath.indexOf("/");
+                while (currentIndex >= 0) {
+                    String utf8DotPath = new StringBuilder(reqPath).replace(currentIndex, currentIndex + 1, "/%2f").toString();
+                    modifiedPaths.add(utf8DotPath);
+                    
+                    currentIndex = reqPath.indexOf("/", currentIndex + 1);
+                    
+                }
+            }
+        }
+        
+        // Invalid %252f
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+
+                int currentIndex = reqPath.indexOf("/");
+                while (currentIndex >= 0) {
+                    String utf8DotPath = new StringBuilder(reqPath).replace(currentIndex, currentIndex + 1, "/%252f").toString();
+                    modifiedPaths.add(utf8DotPath);
+                    
+                    currentIndex = reqPath.indexOf("/", currentIndex + 1);
+                    
+                }
+            }
+        }
+        
+        
         return modifiedPaths;
     }
 

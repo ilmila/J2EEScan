@@ -1,9 +1,11 @@
 package burp.j2ee;
 
 import burp.HTTPMatcher;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.isJavaApplicationByURL;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
 
@@ -130,5 +132,40 @@ public class HTTPMatcherTest extends TestCase {
         assertTrue(isJavaApplicationByURL(new URL("http://localhost/test.do")));
         assertTrue(isJavaApplicationByURL(new URL("http://localhost/myapp/test?do.php#.do")));
         assertFalse(isJavaApplicationByURL(new URL("http://localhost/myapp/test.php?do.php#.do")));
+    }
+    
+    
+    public void testApplicationMutator() throws MalformedURLException {
+        List<String> paths = new ArrayList<>();
+        paths.add("/");
+        paths.add("/admin/private");
+        paths.add("/web-console/status?full=true");
+        paths.add("/private/test/admin/login.jsp");
+                
+        List mutateURIs = URIMutator(paths);
+        System.out.println(mutateURIs);
+        assertTrue(mutateURIs.contains("/admin;/private"));
+        assertTrue(mutateURIs.contains("//admin/private"));
+        assertTrue(mutateURIs.contains("//admin//private"));
+        assertTrue(mutateURIs.contains("//web-console/status?full=true"));
+        assertTrue(mutateURIs.contains("//web-console//status?full=true"));
+        assertTrue(mutateURIs.contains("/web-console;/status?full=true"));
+        
+        assertTrue(mutateURIs.contains("/%c0%afprivate/test/admin/login.jsp"));
+        assertTrue(mutateURIs.contains("/private/%c0%aftest/admin/login.jsp"));
+        assertTrue(mutateURIs.contains("/private/test/%c0%afadmin/login.jsp"));
+        assertTrue(mutateURIs.contains("/private/test/admin/%c0%aflogin.jsp"));
+
+        assertTrue(mutateURIs.contains("/%2fprivate/test/admin/login.jsp"));
+        assertTrue(mutateURIs.contains("/private/%2ftest/admin/login.jsp"));
+        assertTrue(mutateURIs.contains("/private/test/%2fadmin/login.jsp"));
+        assertTrue(mutateURIs.contains("/private/test/admin/%2flogin.jsp"));
+        
+        assertTrue(mutateURIs.contains("/"));
+        assertTrue(mutateURIs.contains("/admin/private"));
+        assertTrue(mutateURIs.contains("/private/test/admin/login.jsp"));
+        assertTrue(mutateURIs.contains("/web-console/status?full=true"));
+        
+        
     }
 }

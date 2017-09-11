@@ -2,6 +2,7 @@ package burp.j2ee.issues.impl;
 
 import burp.j2ee.CustomScanIssue;
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -74,7 +75,8 @@ public class JBossWS implements IModule{
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String JBOSS_WS_PATH : JBOSS_WS) {
+            List<String> JBOSS_WS_MUTATED = URIMutator(JBOSS_WS);
+            for (String JBOSS_WS_PATH : JBOSS_WS_MUTATED) {
 
                 try {
                     // Test the presence of JBossWS console

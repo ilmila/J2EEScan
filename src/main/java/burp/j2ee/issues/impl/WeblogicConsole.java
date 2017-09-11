@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.HTTPParser;
 import burp.IBurpExtenderCallbacks;
@@ -119,6 +120,7 @@ public class WeblogicConsole implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
+            List<String> WEBLOGIC_CONSOLE_PATHS_MUTATED = URIMutator(WEBLOGIC_CONSOLE_PATHS);
             for (String WEBLOGIC_CONSOLE_PATH : WEBLOGIC_CONSOLE_PATHS) {
 
                 try {

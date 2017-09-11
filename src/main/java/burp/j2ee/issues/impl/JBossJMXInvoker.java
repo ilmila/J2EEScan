@@ -2,6 +2,7 @@ package burp.j2ee.issues.impl;
 
 import burp.j2ee.CustomScanIssue;
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -85,7 +86,9 @@ public class JBossJMXInvoker implements IModule{
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String JBOSS_INVOKER_PATH : JBOSS_INVOKER_PATHS) {
+            List<String> JBOSS_INVOKER_PATHS_MUTATED = URIMutator(JBOSS_INVOKER_PATHS);
+            
+            for (String JBOSS_INVOKER_PATH : JBOSS_INVOKER_PATHS_MUTATED) {
 
                 try {
 

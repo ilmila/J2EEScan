@@ -2,6 +2,7 @@ package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
 import burp.HTTPMatcher;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -179,7 +180,8 @@ public class ApacheAxis implements IModule {
              *
              *
              */
-            for (String HAPPY_AXIS_PATH : HAPPY_AXIS_PATHS) {
+            List<String> HAPPY_AXIS_PATHS_MUTATED = URIMutator(HAPPY_AXIS_PATHS);
+            for (String HAPPY_AXIS_PATH : HAPPY_AXIS_PATHS_MUTATED) {
 
                 try {
 
@@ -220,8 +222,8 @@ public class ApacheAxis implements IModule {
             }
 
             
-            
-            for (String AXIS_PATH : AXIS_PATHS) {
+            List<String> AXIS_PATHS_MUTATED = URIMutator(AXIS_PATHS);
+            for (String AXIS_PATH : AXIS_PATHS_MUTATED) {
 
                 try {
 

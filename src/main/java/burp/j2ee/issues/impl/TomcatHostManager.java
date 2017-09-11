@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -67,7 +68,8 @@ public class TomcatHostManager implements IModule{
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String TOMCAT_HOST_MANAGER_PATH : TOMCAT_HOST_MANAGER_PATHS) {
+            List<String> TOMCAT_HOST_MANAGER_PATHS_MUTATED = URIMutator(TOMCAT_HOST_MANAGER_PATHS);
+            for (String TOMCAT_HOST_MANAGER_PATH : TOMCAT_HOST_MANAGER_PATHS_MUTATED) {
 
                 try {
                     // Test the presence of tomcat console
