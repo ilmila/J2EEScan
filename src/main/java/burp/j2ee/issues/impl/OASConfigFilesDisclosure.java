@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -123,7 +124,8 @@ public class OASConfigFilesDisclosure implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String OAS_PATH : OAS_PATHS) {
+            List<String> OAS_PATHS_MUTATED = URIMutator(OAS_PATHS);
+            for (String OAS_PATH : OAS_PATHS_MUTATED) {
 
                 try {
                     // Test the presence of tomcat console
