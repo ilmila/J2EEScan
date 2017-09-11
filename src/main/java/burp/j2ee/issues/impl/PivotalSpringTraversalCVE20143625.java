@@ -52,7 +52,8 @@ public class PivotalSpringTraversalCVE20143625 implements IModule {
             "/files/",
             "/upload/",
             "/content/",
-            "/html/"
+            "/html/",
+            "/deploy/"
     );
 
     private PrintWriter stderr;
