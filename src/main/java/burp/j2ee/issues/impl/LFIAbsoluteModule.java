@@ -53,6 +53,7 @@ public class LFIAbsoluteModule implements IModule{
             "../../../../../../../../../../../../../../../../etc/passwd%00.html".getBytes(),
             "file:///c:/windows/win.ini".getBytes(),
             "file:///etc/passwd".getBytes(),
+            "file://\\/\\/etc/passwd".getBytes(),
             "%2fetc%2fpasswd".getBytes(),
             "../../../../../../../../../../../../../../../../windows/win.ini".getBytes(),
             "../../../../../../../../../../../../../../../../windows/win.ini%00.html".getBytes()
