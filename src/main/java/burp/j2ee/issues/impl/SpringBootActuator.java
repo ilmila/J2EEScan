@@ -23,11 +23,23 @@ import java.util.List;
 
 
 
+/***
+ * 
+ * Spring Boot Actuator
+ * 
+ * 
+ * 
+ * 
+ * References:
+ *  - http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints
+ * 
+ * 
+ */
 public class SpringBootActuator implements IModule {
 
     private static final String TITLE = "Spring Boot Actuator";
     private static final String DESCRIPTION = "J2EEscan identified the Spring Boot Actuator endpoint. <br />"
-            + "This development console allows to access remote sensitive information (ex: enviroment variables, http sessions)<br /><br/>."
+            + "This development console allows to access remote sensitive information (ex: enviroment variables, http sessions).<br /><br/>"
             + "The endpoints could be:<br >"
             + "<ul>"
             + "<li>autoconfig</li>"
@@ -40,16 +52,29 @@ public class SpringBootActuator implements IModule {
             + "<li>metrics</li>"   
             + "<li>mappings</li>"   
             + "<li>shutdown</li>"               
-            + "<li>trace</li>"                           
+            + "<li>trace</li>"
+            + "<li>refresh (Spring Cloud)</li>"   
+            + "<li>jolokia</li>"   
             + "</ul>"
             + "<br /><b>References</b><br />"
-            + "http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints";
-    private static final String REMEDY = "Disable access to this endpointon on the production server";
+            + "http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints<br />"
+            + "https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-jmx.html<br />"
+            + "https://www.synacktiv.com/ressources/Synacktiv_OpenBSD_PacketFilter_CVE-2019-5597_ipv6_frag.pdf";
+    private static final String REMEDY = "Evaluate the availability of the configured endpoint and its risk. Disable or restrict access to this endpointon on the production server";
 
-    private static final byte[] GREP_STRING = "{\"status\":\"UP\"}".getBytes();
+        private static final List<byte[]> GREP_STRINGS = Arrays.asList(
+            "{\"status\":\"UP\"}".getBytes(),
+            "{\"_links\":".getBytes(),
+            "org.spring".getBytes()
+    );
+        
+    
     private static final List<String> SPRINGBOOT_ACTUATOR_PATHS = Arrays.asList(
             "/health",
-            "/manager/health"
+            "/manager/health",
+            "/actuator",
+            "/actuator/jolokia/list",
+            "/jolokia/list"
     );
 
     // List of host and port system already tested
@@ -86,28 +111,35 @@ public class SpringBootActuator implements IModule {
             for (String springboot_path : SPRINGBOOT_ACTUATOR_PATHS) {
 
                 try {
+                    
                     URL urlToTest = new URL(protocol, url.getHost(), url.getPort(), springboot_path);
                     byte[] webconsoleRequest = helpers.buildHttpRequest(urlToTest);
 
-                    // make a request containing our injection test in the insertion point
+                    // make a request containing our Spring Boot endpoint
                     IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                             baseRequestResponse.getHttpService(), webconsoleRequest);
 
+                    byte[] requestResponse = checkRequestResponse.getResponse();
+                                        
                     // look for matches of our active check grep string
-                    List<int[]> matches = getMatches(checkRequestResponse.getResponse(), GREP_STRING, helpers);
-                    if (matches.size() > 0) {
-
-                        issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(),
-                                reqInfo.getUrl(),
-                                checkRequestResponse,
-                                TITLE,
-                                DESCRIPTION,
-                                REMEDY,
-                                Risk.High,
-                                Confidence.Certain
-                        ));
+                    for (byte[] GREP_STRING : GREP_STRINGS) {
+                        
+                        List<int[]> matches = getMatches(requestResponse, GREP_STRING, helpers);
+                        if (matches.size() > 0) {
+                            
+                                   callbacks.addScanIssue(new CustomScanIssue(
+                                           baseRequestResponse.getHttpService(),
+                                           urlToTest,
+                                           checkRequestResponse,
+                                           TITLE,
+                                           DESCRIPTION,
+                                           REMEDY,
+                                           Risk.Low,
+                                           Confidence.Certain
+                                   ));
+                               }
                     }
+
                 } catch (MalformedURLException ex) {
                     stderr.println("Error creating URL " + ex.getMessage());
                 }
@@ -141,25 +173,32 @@ public class SpringBootActuator implements IModule {
                     URL urlToTest = new URL(protocol, url.getHost(), url.getPort(), context + webconsole_path);
                     byte[] webconsoleRequest = helpers.buildHttpRequest(urlToTest);
 
-                    // make a request containing our injection test in the insertion point
+                    // make a request containing our Spring Boot endpoint
                     IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                             baseRequestResponse.getHttpService(), webconsoleRequest);
 
+                    byte[] requestResponse = checkRequestResponse.getResponse();
+                    
+                    
                     // look for matches of our active check grep string
-                    List<int[]> matches = getMatches(checkRequestResponse.getResponse(), GREP_STRING, helpers);
-                    if (matches.size() > 0) {
-
-                        issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(),
-                                reqInfo.getUrl(),
-                                checkRequestResponse,
-                                TITLE,
-                                DESCRIPTION,
-                                REMEDY,
-                                Risk.High,
-                                Confidence.Certain
-                        ));
+                    for (byte[] GREP_STRING : GREP_STRINGS) {
+                        
+                        List<int[]> matches = getMatches(requestResponse, GREP_STRING, helpers);
+                        if (matches.size() > 0) {
+                                    
+                                   callbacks.addScanIssue(new CustomScanIssue(
+                                           baseRequestResponse.getHttpService(),
+                                           urlToTest,
+                                           checkRequestResponse,
+                                           TITLE,
+                                           DESCRIPTION,
+                                           REMEDY,
+                                           Risk.Low,
+                                           Confidence.Certain
+                                   ));
+                               }
                     }
+                    
                 } catch (MalformedURLException ex) {
                     stderr.println("Error creating URL " + ex.getMessage());
                 }
@@ -168,5 +207,6 @@ public class SpringBootActuator implements IModule {
         }
 
         return issues;
+        
     }
 }
