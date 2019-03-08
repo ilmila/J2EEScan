@@ -42,10 +42,21 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         stdout.println("Extended security checks for J2EE applications");
         stdout.println("https://github.com/ilmila/J2EEScan");
 
+ 
+        
+        String DISCLAIMER = " * DISCLAIMER: This tool is intended for security engineers. \n"
+                + "Attacking targets without prior mutual consent is illegal. \n"
+                + "It is the end user's responsibility to obey all applicable local, \n"
+                + "state and federal laws. Developers assume no liability and are not \n"
+                + "responsible for any misuse or damage caused by this program \n";
+
         try {
             List<String> m = getClassNamesFromPackage("burp.j2ee.issues.impl.");
             
             stdout.println(String.format("\nLoaded %s J2EE extended tests\n\n", m.size()));
+            
+            stdout.println(DISCLAIMER);
+            
         } catch (IOException ex) {
             stderr.println(ex);
         }
