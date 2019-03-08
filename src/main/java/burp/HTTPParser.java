@@ -1,5 +1,7 @@
 package burp;
 
+import java.util.Iterator;
+import java.util.List;
 
 public class HTTPParser {
 
@@ -12,8 +14,8 @@ public class HTTPParser {
             }
         }
         return null;
-    }    
-    
+    }
+
     public static String getResponseHeaderValue(IResponseInfo responseInfo, String headerName) {
         headerName = headerName.toLowerCase().replace(":", "");
         for (String header : responseInfo.getHeaders()) {
@@ -22,19 +24,33 @@ public class HTTPParser {
             }
         }
         return null;
-    }    
-    
-    public static String getHTTPBasicCredentials(IRequestInfo requestInfo) throws Exception{
-        String authHeader  = getRequestHeaderValue(requestInfo, "Authorization").trim(); 
-        String[] parts = authHeader.split("\\s");
-        
-        if (parts.length != 2)
-            throw new Exception("Wrong number of HTTP Authorization header parts");
-
-        if (!parts[0].equalsIgnoreCase("Basic"))
-            throw new Exception("HTTP authentication must be Basic");
-
-        return parts[1]; 
     }
-    
+
+    public static List<String> addOrUpdateHeader(List<String> headers, String newHeader, String newHeaderValue) {
+
+        Iterator<String> iter = headers.iterator();
+        while (iter.hasNext()) {
+            if (iter.next().toLowerCase().contains(newHeader.toLowerCase())) {
+                iter.remove();
+            }
+        }
+        headers.add(String.format("%s: %s", newHeader, newHeaderValue));
+        return headers;
+    }
+
+    public static String getHTTPBasicCredentials(IRequestInfo requestInfo) throws Exception {
+        String authHeader = getRequestHeaderValue(requestInfo, "Authorization").trim();
+        String[] parts = authHeader.split("\\s");
+
+        if (parts.length != 2) {
+            throw new Exception("Wrong number of HTTP Authorization header parts");
+        }
+
+        if (!parts[0].equalsIgnoreCase("Basic")) {
+            throw new Exception("HTTP authentication must be Basic");
+        }
+
+        return parts[1];
+    }
+
 }
