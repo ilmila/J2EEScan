@@ -48,7 +48,9 @@ public class WebInfInformationDisclosure implements IModule {
             "/WEB-INF/web.xml",
             "/static/WEB-INF/web.xml", // CVE-2014-0053 
             "/forward:/WEB-INF/web.xml", // spring issue
-            "/web-inf./web.xml" // CVE-2016-0793 https://bugzilla.redhat.com/show_bug.cgi?id=1305937
+            "/web-inf./web.xml", // CVE-2016-0793 https://bugzilla.redhat.com/show_bug.cgi?id=1305937
+            "/.//WEB-INF/web.xml",
+            "/./WEB-INF/web.xml"
     );
 
     private static final byte[] GREP_STRING = "<web-app".getBytes();
