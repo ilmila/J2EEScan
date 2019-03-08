@@ -30,135 +30,6 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 
 
 
-## Test cases:
-
-**Misc**
-
- * Expression Language Injection (CVE-2011-2730)
- * Apache Roller OGNL Injection (CVE-2013-4212)
- * Local File include - /WEB-INF/web.xml Retrieved
- * Local File Include - Spring Application Context Retrieved
- * Local File Include - struts.xml Retrieved
- * Local File Include - weblogic.xml Retrieved
- * Local File Include - ibm-ws-bnd.xml Retrieved
- * Local File Include - ibm-web-ext.xmi Retrieved
- * Local File Include - ibm-web-ext.xml Retrieved
- * Local File Include - /etc/shadow Retrieved
- * Local File Include - /etc/passwd Retrieved
- * HTTP Auth Weak Password
- * WEB-INF Application Configuration Files Retrieved
- * Status Servlet (CVE-2008-3273)
- * Snoop Servlet (CVE-2012-2170)
- * Extended Path Traversal Scan
- * AJP Service Detection - thanks to [@ikki](https://twitter.com/_ikki)
- * Spring Boot Actuator console
- * UTF8 Response Splitting
- * JK Management Endpoints
- * Pivotal Spring Traversal (CVE-2014-3625)
- 
-**Apache Struts**
-
- * Apache Struts 2 S2-023 - thanks to [@h3xstream](https://twitter.com/h3xstream)
- * Apache Struts 2 S2-016
- * Apache Struts 2 S2-017
- * Apache Struts 2 S2-020
- * Apache Struts 2 S2-021
- * Apache Struts 2 S2-032
- * Apache Struts DevMode Enabled
- * Apache Struts OGNL Console
-
-**Grails**
-
- * Grails Path Traversal (CVE-2014-0053)
-
-**Apache Wicket**
- 
- * Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
-
-**Java Server Faces**
- 
- * Java Server Faces Local File Include (CVE-2013-3827 CVE-2011-4367)
-
-**JBoss SEAM**
-
- * JBoss SEAM Remote Command Execution (CVE-2010-1871)
-
-**Incorrect Error Handling**
-
- * JSF
- * Apache Struts
- * Apache Tapestry
- * Grails
- * GWT
- * Java
-
-**XML Security**
- 
- * XInclude Support
- * XML External Entity
-
-**Information Disclosure Issues**
-
- * Remote JVM version
- * Apache Tomcat version
- * Jetty version
- * Oracle Application Server version
- * Oracle Glassfish version
- * Oracle Weblogic version
-
-**Compliance Checks**
- 
- * web.xml - HTTP Verb Tampering
- * web.xml - URL Parameters for Session Tracking
- * web.xml - Incomplete Error Handling
- * web.xml - Invoker Servlet
-
-**JBoss**
-
- * JBoss Web Service Enumeration
- * JBoss Admin Console Weak Password
- * JBoss JMX/Web Console Not Password Protected
- * JBoss JMX Invoker Remote Command Execution
- * JBoss Undertow Directory Traversal (CVE-2014-7816)
- * JBoss jBPM Admin Console
-
-**Tomcat**
-
- * Tomcat Manager Console Weak Password
- * Tomcat Host Manager Console Weak Password
- * End Of Life Software - Tomcat
-
-**Weblogic**
-
- * Weblogic UDDI Explorer Detection
- * Weblogic UDDI Explorer SSRF Vulnerability (CVE-2014-4210)
- * Weblogic Admin Console Weak Password
-
-**Oracle Application Server**
- 
- * Added check for Oracle Log Database Accessible
- * Added check for Multiple Oracle Application Server Default Resources (CVE-2002-0565, CVE-2002-0568, CVE-2002-0569)
- * End Of Life Software - Oracle Application Server
-
-**Jetty**
-
- * Jetty Remote Leak Shared Buffers (CVE-2015-2080) found by [@gdssecurity](https://twitter.com/gdssecurity/)
- * End Of Life Software - Jetty
-
-**Apache Axis**
-
- * Apache Axis2 - Web Service Enumeration
- * Apache Axis2 - Admin Console Weak Password
- * Apache Axis2 - Local File Include Vulnerability (OSVDB 59001)
- * Apache Axis2 - Happy Axis
- 
-**NodeJS**
-
- * NodeJS HTTP Redirect (CVE-2015-1164)
- * NodeJS HTTP Response Splitting (CVE-2016-2216)
-
-
-
 ## How to install ?
 
  * From "Cookie jar" section in "Options" -> "Sessions" enable the Scanner field
@@ -176,6 +47,38 @@ Special thanks to
 
 
 ## Release Notes
+
+### Version 1.2.7dev ():
+ * Added check for Tomcat URI Normalization found by [@orange_8361](https://twitter.com/orange_8361)
+ * Added check for Fastjson RCE (CVE-2017-7525)
+ * Added check for Apache SOLR (CVE-2017-12629)
+ * Added check for EL3 Injection
+ * Added check for Apache Struts Showcase
+ * Added check for Apache Struts2 S2-043
+ * Added check for Apache Struts2 S2-052
+ * Added strategy to bypass weak ACL URI restrictions
+ * Added check for SSRF Scanner
+ * Added check for REST API Swagger Scanner
+ * Added check for Oracle EBS SSRF Vulnerabilities (CVE-2018-3167, CVE-2017-10246)
+ * Added check for Next.js Path Traversal Vulnerability (CVE-2018-6184)
+ * Added check for NodeJs Path Traversal (2017-14849)
+ * Added check check for Session Fixation
+ * Added check for session id in url
+ * Added check for Javascript PostMessage detection
+ * Added check for JBoss HTTP Invoker ReadOnlyAccessFilter CVE-2017-12149
+ * Added check for NodeJS Path Traversal CVE-2017-14849
+ * Added check for new base check for EL issue
+ * Added check for JBoss WS JUDDI console
+ * Added check for Oracle iDOC Injection (CVE-2013-3770)
+ * Added check for HTTP Open Proxy Detection
+ * Improved detection for XXE attacks on xml parameters
+ * Improved detection on local file include/path traversal on J2EE env
+ * Improve detection for CVE-2014-3625 - Spring Directory Traversal
+ * Improve detection for LFI attacks
+ * Improve detection for Java Server Faces Path Traversal
+ * Improved detection for Infrastructural Path Traversal
+ * Improved Spring Boot Actuator
+ * Improved check for Apache Axis Admin Console
 
 
 ### Version 1.2.5 (29 May, 2016):
