@@ -5,7 +5,7 @@
 
     <groupId>org.em</groupId>
     <artifactId>J2EEScan</artifactId>
-    <version>1.2.5</version>
+    <version>1.2.7-dev</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -23,6 +23,13 @@
             <version>3.2.2</version>
         </dependency>
         
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+            <type>jar</type>
+        </dependency>
+
         <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <groupId>org.jsoup</groupId>
