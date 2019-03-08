@@ -23,7 +23,7 @@ import java.util.List;
  * 
  * References: 
  *   - http://10degres.net/aws-takeover-ssrf-javascript/
- *
+ * 
  *
  */
 public class JavascriptSSRF implements IModule {
