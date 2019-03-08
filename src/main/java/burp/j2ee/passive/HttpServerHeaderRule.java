@@ -215,15 +215,13 @@ public class HttpServerHeaderRule implements PassiveRule {
 
         }
 
-        
         /**
-         * 
+         *
          * NodeJS detection
-         * 
-         * Example:
-         * X-Powered-By: Express
-         * 
-         * 
+         *
+         * Example: X-Powered-By: Express
+         *
+         *
          */
         if (xPoweredByHeader != null) {
             if (xPoweredByHeader.trim().equals("Express")) {
@@ -233,6 +231,27 @@ public class HttpServerHeaderRule implements PassiveRule {
                         baseRequestResponse,
                         "NodeJS detected",
                         "J2EEscan identified the NodeJS framework,",
+                        "ExpressJS hardening guidelines: <br />"
+                           + "https://expressjs.com/en/advanced/best-practice-security.html",
+                        Risk.Information,
+                        Confidence.Certain
+                ));
+            }
+        }
+
+        /**
+         *
+         * X-Powered-By: Next.js 4.2.3
+         *
+         */
+        if (xPoweredByHeader != null) {
+            if (xPoweredByHeader.trim().contains("Next.js")) {
+                callbacks.addScanIssue(new CustomScanIssue(
+                        baseRequestResponse.getHttpService(),
+                        reqInfo.getUrl(),
+                        baseRequestResponse,
+                        "Next Javascript Framework detected",
+                        "J2EEscan identified the Next Javascript Framework",
                         "",
                         Risk.Information,
                         Confidence.Certain
