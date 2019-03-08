@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 public class HTTPMatcher {
 
@@ -213,17 +214,32 @@ public class HTTPMatcher {
      */
     public static String getApplicationContext(URL url) {
 
-        String host = url.getHost();
-        String protocol = url.getProtocol();
         String path = url.getPath();
-        int port = url.getPort();
-
         int i = path.indexOf("/", 1);
         String context = path.substring(0, i + 1);
 
         return context;
     }
 
+    
+     
+    /**
+     * Detect the application context and the first nested path
+     * Strategy used to test some Path Traversal issues
+     * 
+     * Ex: http://www.example.org/myapp/assets/test.jsf
+     *
+     * returns /myapp/assets/
+     */
+    public static String getApplicationContextAndNestedPath(URL url) {
+
+        String path = url.getPath();
+        int i = path.lastIndexOf('/');
+        String context = path.substring(0, i + 1);
+
+        return (StringUtils.countMatches(context, "/") == 3) ? context : "";
+    }
+    
     /**
      * Iterate on a list of URIs paths and apply some modifiers to circumvent
      * some weak ACL protections or weak/wrong mod_rewrite rules.
