@@ -76,7 +76,7 @@ public class SSRFScanner implements IModule {
      */
     private static final Map<byte[], Pattern> SSRF_CLOUD_INJECTION_TESTS = new HashMap<byte[], Pattern>() {
         {
-            put("http://169.254.169.254/latest/meta-data/local-hostname".getBytes(), Pattern.compile("ec2.internal", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+            put("http://169.254.169.254/latest/meta-data/".getBytes(), Pattern.compile("identity-credentials", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
             put("http://metadata.google.internal/computeMetadata/v1beta1/instance/service-accounts/default/token".getBytes(), Pattern.compile("token_type", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
         
         }
