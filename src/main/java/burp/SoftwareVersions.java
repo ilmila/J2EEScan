@@ -68,7 +68,7 @@ public class SoftwareVersions {
                         "J2EEScan identified an unsupported release of Jetty <b>" + release + "</b>.<br />"
                         + "No more security updates for this version will be released by the vendor <br /><br />"
                         + "<b>References</b><br />"
-                        + "https://webtide.com/jetty-7-and-jetty-8-end-of-life/<br />",
+                        + "https://wiki.eclipse.org/Jetty/Starting/Jetty_Version_Comparison_Table<br />",
                         "Update the Jetty Container with the last stable release",
                         Risk.High,
                         Confidence.Certain
