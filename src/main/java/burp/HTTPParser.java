@@ -1,5 +1,9 @@
 package burp;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,6 +55,15 @@ public class HTTPParser {
         }
 
         return parts[1];
+    }
+    
+    public static URL concatenate(URL baseUrl, String extraPath) throws URISyntaxException, MalformedURLException {
+        URI uri = baseUrl.toURI();
+        
+        String newPath = uri.getPath() + "/" + extraPath;
+        URI newUri = uri.resolve(newPath);
+        
+        return newUri.toURL();
     }
 
 }
