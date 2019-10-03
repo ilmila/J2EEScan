@@ -1,25 +1,34 @@
 package burp;
 
 import burp.j2ee.PassiveScanner;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.sql.SQLException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-public class BurpExtender implements IBurpExtender, IScannerCheck {
+
+public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionStateListener {
 
     private PrintWriter stdout;
     private PrintWriter stderr;
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
+    private Connection conn;
+    private File j2eeDBState;
 
     //
     // implement IBurpExtender
@@ -42,8 +51,6 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         stdout.println("Extended security checks for J2EE applications");
         stdout.println("https://github.com/ilmila/J2EEScan");
 
- 
-        
         String DISCLAIMER = " * DISCLAIMER: This tool is intended for security engineers. \n"
                 + "Attacking targets without prior mutual consent is illegal. \n"
                 + "It is the end user's responsibility to obey all applicable local, \n"
@@ -52,15 +59,32 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
 
         try {
             List<String> m = getClassNamesFromPackage("burp.j2ee.issues.impl.");
-            
+
             stdout.println(String.format("\nLoaded %s J2EE extended tests\n\n", m.size()));
-            
+
             stdout.println(DISCLAIMER);
-            
+
         } catch (IOException ex) {
             stderr.println(ex);
         }
-        
+
+        try {
+
+            j2eeDBState = File.createTempFile("burpsuite-j2eescan-state", ".db");
+            stdout.println("Using temporary db state file: " + j2eeDBState.getAbsolutePath());
+            stdout.println("This internal state is used to avoid duplicate infrastructure security "
+                    + "checks on the same host, improving the scan performance");
+
+            connectToDatabase(j2eeDBState.getAbsolutePath());
+
+        } catch (IOException ex) {
+            stderr.println(ex);
+        } catch (SQLException ex) {
+            stderr.println(ex);
+        } catch (ClassNotFoundException ex) {
+            stderr.println(ex);
+        }
+
         // register ourselves as a custom scanner check
         callbacks.registerScannerCheck(this);
     }
@@ -103,7 +127,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
                 }
             }
 
-        // loop through files in classpath
+            // loop through files in classpath
         } else {
             File folder = new File(packageURL.getFile());
             File[] contents = folder.listFiles();
@@ -123,25 +147,80 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
         List<String> j2eeTests;
 
         try {
-            j2eeTests = getClassNamesFromPackage("burp.j2ee.issues.impl.");
-            for (String module : j2eeTests) {                
-                try {
-                    if (module.contains("$")) {
-                        continue;
-                    }
-                    Constructor<?> c = Class.forName("burp.j2ee.issues.impl."+module).getConstructor();
-                    IModule j2eeModule = (IModule) c.newInstance();
-                                        
-                    issues.addAll(j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint));
 
-                } catch (NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
-                    stderr.println(ex);
-                } catch (Exception ex){
-                    ex.printStackTrace(stderr);
+            j2eeTests = getClassNamesFromPackage("burp.j2ee.issues.impl.");
+
+            for (String module : j2eeTests) {
+
+                if (module.contains("$")) {
+                    continue;
+                }
+
+                //if (!module.contains("OpenRedirectExtended")) {
+                //    continue;
+                //}
+                
+                Constructor<?> c = Class.forName("burp.j2ee.issues.impl." + module).getConstructor();
+                IModule j2eeModule = (IModule) c.newInstance();
+
+                for (Method m : j2eeModule.getClass().getMethods()) {
+
+                    if (m.getName().equals("scan")) {
+
+                        RunOnlyOnce annotationRunOnlyOnce = m.getAnnotation(RunOnlyOnce.class);
+
+                        // Detect if the module must be run once.
+                        // Some infrastructure tests or generic administrative console checks
+                        // should be run once for every host.
+                        // If the annotation is detected verify and execute the module
+                        // only once for the same host and port.
+                        if (annotationRunOnlyOnce != null) {
+
+                            IRequestInfo reqInfo;
+                            reqInfo = helpers.analyzeRequest(baseRequestResponse);
+
+                            URL url = reqInfo.getUrl();
+                            String host = url.getHost();
+                            int port = url.getPort();
+
+                            try {
+                                
+                                // log the plugin is executed once
+                                pluginExecutedOnce(module, host, port);
+                                
+                                // Execute the single module and save the vulnerabilities
+                                issues.addAll(j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint));
+                                                               
+                            } catch (SQLException e) {
+                                stderr.println("Ignoring already executed module " + module);
+                            } catch (Exception e){
+                                stderr.println("Error during module execution " + module);
+                                e.printStackTrace(stderr);
+                            }
+                            
+ 
+                        } else {
+                            
+                            try {
+
+                                // Execute the generic module
+                                issues.addAll(j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint));
+
+                            } catch (Exception e){
+                                stderr.println("Error during module execution " + module);
+                                e.printStackTrace(stderr);
+                            }
+                            
+                        }
+
+                    }
+
                 }
             }
 
-        } catch (IOException ex) {
+        } catch (NoSuchMethodException | SecurityException | ClassNotFoundException ex) {
+            stderr.println(ex);
+        } catch (Exception ex) {
             ex.printStackTrace(stderr);
         }
 
@@ -165,4 +244,45 @@ public class BurpExtender implements IBurpExtender, IScannerCheck {
             return 0;
         }
     }
+
+    public void connectToDatabase(final String dbFile) throws IOException, SQLException, ClassNotFoundException {
+
+        if (conn == null) {
+            Class.forName("org.sqlite.JDBC");
+        }
+        conn = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
+        conn.setAutoCommit(true);
+
+        String fields = "plugin, host, port";
+
+        conn.createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS executed_plugins ("
+                + " plugin TEXT PRIMARY KEY,"
+                + " host TEXT,"
+                + " port INTEGER,"
+                + " UNIQUE(" + fields + "))");
+
+    }
+
+    public void pluginExecutedOnce(String pluginClass, String host, int port) throws SQLException {
+
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO executed_plugins VALUES(?,?,?)");
+        stmt.setString(1, pluginClass);
+        stmt.setString(2, host);
+        stmt.setInt(3, port);
+
+        stmt.executeUpdate();
+
+    }
+
+
+    @Override
+    public void extensionUnloaded() {
+
+        if (j2eeDBState.delete()) {
+            System.out.println("Removed J2EEScan db state file " + j2eeDBState.getAbsolutePath());
+        } else {
+            System.out.println("Error while removing J2EEScan db state file " + j2eeDBState.getAbsolutePath());
+        }
+    }
+
 }
