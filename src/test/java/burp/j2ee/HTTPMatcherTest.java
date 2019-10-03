@@ -48,6 +48,32 @@ public class HTTPMatcherTest extends TestCase {
         assertEquals(expResult3, result3);
     }
 
+     /**
+     * Test of getApplicationContext method, of class HTTPMatcher.
+     */
+    public void testGetApplicationContextAndNestedPath() throws MalformedURLException {
+        System.out.println("getApplicationContextAndNestedPath");
+        URL url = new URL("http://www.example.org/myapp/assets/Login.jsf?test=1234");
+        String expResult = "/myapp/assets/";
+        String result = HTTPMatcher.getApplicationContextAndNestedPath(url);
+        assertEquals(expResult, result);
+
+        URL url2 = new URL("http://www.example.org/myapp/");
+        String expResult2 = "";
+        String result2 = HTTPMatcher.getApplicationContextAndNestedPath(url2);
+        assertEquals(expResult2, result2);
+
+        URL url3 = new URL("http://www.example.org/myapp/test/test.jsf");
+        String expResult3 = "/myapp/test/";
+        String result3 = HTTPMatcher.getApplicationContextAndNestedPath(url3);
+        assertEquals(expResult3, result3);
+     
+        URL url4 = new URL("http://www.example.org/static/js/a.js");
+        String expResult4 = "/static/js/";
+        String result4 = HTTPMatcher.getApplicationContextAndNestedPath(url4);
+        assertEquals(expResult4, result4);
+    }
+    
     public void testGetServletsFromWebDescriptors() {
 
         System.out.println("Testing testGetServletsFromWebDescriptors");
