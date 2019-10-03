@@ -62,10 +62,6 @@ public class ApacheStrutsDebugMode implements IModule {
     */
     private static final byte[] GREP_STRING = "'OGNL Console'".getBytes();
 
-    // List of host and port system already tested
-    private static LinkedHashSet hs = new LinkedHashSet();
-    // List of host port and context already tested
-    private static LinkedHashSet hsc = new LinkedHashSet();
 
     private PrintWriter stderr;
 

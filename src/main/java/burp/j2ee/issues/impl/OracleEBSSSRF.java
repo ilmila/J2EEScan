@@ -14,6 +14,7 @@ import burp.IResponseInfo;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -54,6 +55,7 @@ public class OracleEBSSSRF implements IModule {
     
     private PrintWriter stderr;
 
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         IExtensionHelpers helpers = callbacks.getHelpers();
@@ -111,11 +113,7 @@ public class OracleEBSSSRF implements IModule {
                 stderr.println("Malformed URL Exception " + ex);
             }
 
-        } else {
-                stderr.println("---Alreadìy tested");
-                stderr.println(hs.toString());
-        }
- 
+        } 
         
         return issues;
         

@@ -11,6 +11,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 import java.net.URL;
@@ -44,7 +45,7 @@ public class ApacheRollerOGNLInjection implements IModule {
             + "https://www.exploit-db.com/exploits/29859/<br /><br />";
     
 
-    @Override
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         

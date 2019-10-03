@@ -14,6 +14,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -97,7 +98,7 @@ public class WeblogicConsole implements IModule {
         return null;
     }
 
-    @SuppressWarnings("empty-statement")
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();

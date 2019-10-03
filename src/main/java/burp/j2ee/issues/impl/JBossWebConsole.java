@@ -15,6 +15,7 @@ import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 import java.io.PrintWriter;
@@ -61,7 +62,7 @@ public class JBossWebConsole implements IModule {
     private static final byte[] GREP_STRING_WEB = "ServerInfo.jsp\"".getBytes();
     private PrintWriter stderr;
 
-    @Override
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();

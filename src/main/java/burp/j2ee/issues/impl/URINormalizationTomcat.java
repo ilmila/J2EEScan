@@ -35,12 +35,16 @@ import java.util.List;
 public class URINormalizationTomcat implements IModule {
 
     private static final String TITLE = "URI Normalization Issue - Tomcat";
-    private static final String DESCRIPTION = "J2EEscan identified a URI Normalization Issue"
+    private static final String DESCRIPTION = "J2EEscan identified a URI Normalization Issue. <br />"
+            + "The remote infrastructure composed by the reverse proxy and the application Servlet Container fails to normalize some URLs containing <i>path parameters</i>;<br />"
+            + " the current configuration introduces a potential security risk allowing to bypass the ACLs in place and access to the protected Tomcat Manager console."
             + "<br /><br />"
             + "<b>References</b>:<br /><br />"
-            + "https://i.blackhat.com/us-18/Wed-August-8/us-18-Orange-Tsai-Breaking-Parser-Logic-Take-Your-Path-Normalization-Off-And-Pop-0days-Out-2.pdf<br />";
+            + "https://i.blackhat.com/us-18/Wed-August-8/us-18-Orange-Tsai-Breaking-Parser-Logic-Take-Your-Path-Normalization-Off-And-Pop-0days-Out-2.pdf<br />"
+            + "https://gist.github.com/orangetw/d0d396d01b5ca31fe3b9125718a14d9d";
 
-    private static final String REMEDY = "Verify the impact and apply strict ACL rules to prevent this behaviour.";
+    private static final String REMEDY = "This issue seems to affect the infrastructure components (reverse proxy and Servlet Container). <br />" +
+          "A possible mitigation is to isolate the back-end application, by removing the management console and other private Servlet contexts.";
 
     private PrintWriter stderr;
     private PrintWriter stdout;

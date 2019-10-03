@@ -10,6 +10,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.URL;
@@ -41,10 +42,11 @@ public class HTTPProxy implements IModule {
 
     private PrintWriter stderr;
 
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         stderr = new PrintWriter(callbacks.getStderr(), true);
-        
+
         List<IScanIssue> issues = new ArrayList<>();
         IExtensionHelpers helpers = callbacks.getHelpers();
 
@@ -60,31 +62,34 @@ public class HTTPProxy implements IModule {
         if (!hs.contains(system)) {
             hs.add(system);
 
-           // TODO implement GET @www.google.com/humans.txt? HTTP/1.0\r\n\r\n
+            // TODO implement GET @www.google.com/humans.txt? HTTP/1.0\r\n\r\n
             byte[] rawrequestHTTPConnect = "CONNECT http://www.google.com/humans.txt HTTP/1.0\r\n\r\n".getBytes();
-                    
+
             // Execute a CONNECT method
             IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                     baseRequestResponse.getHttpService(), rawrequestHTTPConnect);
 
+            
             // Get the response body
             byte[] responseBytesHTTPConnect = checkRequestResponse.getResponse();
-
-            List<int[]> matchesHTTPConnect = getMatches(responseBytesHTTPConnect, GREP_STRING, helpers);
-            if (matchesHTTPConnect.size() > 0) {
-
-                issues.add(new CustomScanIssue(
-                        baseRequestResponse.getHttpService(),
-                        reqInfo.getUrl(),
-                        checkRequestResponse,
-                        TITLE,
-                        DESCRIPTION,
-                        REMEDY,
-                        Risk.High,
-                        Confidence.Certain
-                ));
-            }
             
+            if (responseBytesHTTPConnect != null) {
+                List<int[]> matchesHTTPConnect = getMatches(responseBytesHTTPConnect, GREP_STRING, helpers);
+                if (matchesHTTPConnect.size() > 0) {
+
+                    issues.add(new CustomScanIssue(
+                            baseRequestResponse.getHttpService(),
+                            reqInfo.getUrl(),
+                            checkRequestResponse,
+                            TITLE,
+                            DESCRIPTION,
+                            REMEDY,
+                            Risk.High,
+                            Confidence.Certain
+                    ));
+                }
+            }
+
             // Execute a GET method
             byte[] rawrequestGETHTTPConnect = "GET http://www.google.com/humans.txt HTTP/1.0\r\n".getBytes();
             IHttpRequestResponse checkRequestResponseGETHTTPConnect = callbacks.makeHttpRequest(
@@ -93,19 +98,21 @@ public class HTTPProxy implements IModule {
             // Get the response body
             byte[] responseBytesGETHTTPConnect = checkRequestResponseGETHTTPConnect.getResponse();
 
-            List<int[]> matchesGETHTTPConnect = getMatches(responseBytesGETHTTPConnect, GREP_STRING, helpers);
-            if (matchesGETHTTPConnect.size() > 0) {
+            if (responseBytesGETHTTPConnect != null) {
+                List<int[]> matchesGETHTTPConnect = getMatches(responseBytesGETHTTPConnect, GREP_STRING, helpers);
+                if (matchesGETHTTPConnect.size() > 0) {
 
-                issues.add(new CustomScanIssue(
-                        baseRequestResponse.getHttpService(),
-                        reqInfo.getUrl(),
-                        checkRequestResponse,
-                        TITLE,
-                        DESCRIPTION,
-                        REMEDY,
-                        Risk.High,
-                        Confidence.Certain
-                ));
+                    issues.add(new CustomScanIssue(
+                            baseRequestResponse.getHttpService(),
+                            reqInfo.getUrl(),
+                            checkRequestResponse,
+                            TITLE,
+                            DESCRIPTION,
+                            REMEDY,
+                            Risk.High,
+                            Confidence.Certain
+                    ));
+                }
             }
 
         }

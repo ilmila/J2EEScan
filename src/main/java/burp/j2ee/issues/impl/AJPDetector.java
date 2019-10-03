@@ -10,6 +10,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 import java.io.DataInputStream;
@@ -39,7 +40,7 @@ public class AJPDetector implements IModule {
     private PrintWriter stderr;
     private static final int[] AJP13PORTS = {8080, 8102, 8081, 6800, 6802, 8009, 8109, 8209, 8309, 8888, 9999};
 
-    @Override
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();

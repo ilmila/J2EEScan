@@ -18,6 +18,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.16.1</version>
+        </dependency>
+    
+        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>
