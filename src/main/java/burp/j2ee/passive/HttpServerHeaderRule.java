@@ -200,7 +200,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                             "Information Disclosure - Oracle Application Server " + version,
                             "J2EEscan identified the remote Application Server release; "
                             + "Oracle Application Server  version <b>" + version + "</b>.<br />"
-                            + "The potential vulnerabilities for this release are available at:<br />"
+                            + "Potential vulnerabilities for this release are available at:<br />"
                             + "<ul><li>" + nistLink + "</li></ul><br /><br />",
                             "Configure the remote application server to suppress the HTTP Server header<br />"
                             + "http://docs.oracle.com/cd/E23943_01/web.1111/e10144/faq.htm#HSADM939<br />"
