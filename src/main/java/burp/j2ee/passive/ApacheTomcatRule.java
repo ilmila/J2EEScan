@@ -37,7 +37,7 @@ public class ApacheTomcatRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("Apache Tomcat", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Aapache%3Atomcat%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Aapache%3Atomcat%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
