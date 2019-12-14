@@ -80,7 +80,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("Jetty", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -114,7 +114,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("GlassFish", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aglassfish_server%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aglassfish_server%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -152,7 +152,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("WebLogic", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aweblogic_server%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aweblogic_server%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -192,7 +192,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                     SoftwareVersions.getIssues("Oracle Application Server", version, callbacks, baseRequestResponse);
 
-                    String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aapplication_server%3A" + version;
+                    String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aapplication_server%3A" + version;
                     callbacks.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
                             reqInfo.getUrl(),
