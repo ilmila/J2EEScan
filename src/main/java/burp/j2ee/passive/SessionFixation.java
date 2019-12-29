@@ -16,8 +16,9 @@ import java.net.URL;
  * Basic dummy strategy to identify Session Fixation issues
  *
  *
- * TODO - improve the detection method, it's prone to FP. - More tests needed -
- * Need to extend also to other common cookies, not only JSESSIONID
+ * TODO - improve the detection method, it's prone to FP. 
+ * - More tests needed 
+ * - Need to extend also to other common cookies, not only JSESSIONID
  *
  */
 public class SessionFixation implements PassiveRule {
@@ -59,7 +60,7 @@ public class SessionFixation implements PassiveRule {
 
             if (reqBodyLowercase != null
                     && (reqBodyLowercase.contains("password") || reqBodyLowercase.contains("pwd") || reqBodyLowercase.contains("passw"))
-                    && (reqBodyLowercase.contains("user") || reqBodyLowercase.contains("mail"))) {
+                    && (reqBodyLowercase.contains("user") || reqBodyLowercase.contains("uid") || reqBodyLowercase.contains("mail"))) {
 
                 String setCookieHeader = HTTPParser.getResponseHeaderValue(respInfo, "Set-Cookie");
 
