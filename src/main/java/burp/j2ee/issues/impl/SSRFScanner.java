@@ -52,7 +52,8 @@ public class SSRFScanner implements IModule {
             "ftp://localhost:22/".getBytes(),
             "ftp://0.0.0.0:22/".getBytes(),
             "ftp://0177.0000.0000.0001:22".getBytes(),
-            "ftp://0x7f.1:22/".getBytes()
+            "ftp://0x7f.1:22/".getBytes(),
+            "http://spoofed.burpcollaborator.net:22/".getBytes()
     );
 
     /**
