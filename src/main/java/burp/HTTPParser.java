@@ -9,7 +9,6 @@ import java.util.List;
 
 public class HTTPParser {
 
-
     public static String getRequestHeaderValue(IRequestInfo requestInfo, String headerName) {
         headerName = headerName.toLowerCase().replace(":", "");
         for (String header : requestInfo.getHeaders()) {
@@ -56,14 +55,22 @@ public class HTTPParser {
 
         return parts[1];
     }
-    
+
     public static URL concatenate(URL baseUrl, String extraPath) throws URISyntaxException, MalformedURLException {
         URI uri = baseUrl.toURI();
-        
+
         String newPath = uri.getPath() + "/" + extraPath;
         URI newUri = uri.resolve(newPath);
-        
+
         return newUri.toURL();
+    }
+
+    public static Boolean isJSONRequest(String contentTypeHeader) {
+        
+        return (contentTypeHeader.contains("json")) ||
+               contentTypeHeader.contains("application/x-javascript") ||
+               contentTypeHeader.contains("application/javascript");
+        
     }
 
 }
