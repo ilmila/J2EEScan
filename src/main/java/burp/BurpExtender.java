@@ -38,6 +38,8 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
         // keep a reference to our callbacks object
         this.callbacks = callbacks;
 
+        this.callbacks.registerExtensionStateListener(this);
+        
         // obtain an extension helpers object
         helpers = callbacks.getHelpers();
 
