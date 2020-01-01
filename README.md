@@ -50,6 +50,7 @@ Special thanks to
 
 ### Version 1.2.7dev ():
  * Major improved on scan time performance
+ * Added check for PrimeFaces Expression Language Injection (CVE-2017-1000486)
  * Added check for Spring Data REST - Remote Command Execution (CVE-2017-8046)
  * Added check for Eclipse Mojarra Path Traversal (CVE-2018-14371)
  * Added check for Tomcat URI Normalization found by [@orange_8361](https://twitter.com/orange_8361)
