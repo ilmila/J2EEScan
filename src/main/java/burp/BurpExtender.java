@@ -39,7 +39,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
         this.callbacks = callbacks;
 
         this.callbacks.registerExtensionStateListener(this);
-        
+
         // obtain an extension helpers object
         helpers = callbacks.getHelpers();
 
@@ -161,7 +161,6 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
                 //if (!module.contains("OpenRedirectExtended")) {
                 //    continue;
                 //}
-                
                 Constructor<?> c = Class.forName("burp.j2ee.issues.impl." + module).getConstructor();
                 IModule j2eeModule = (IModule) c.newInstance();
 
@@ -186,33 +185,48 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
                             int port = url.getPort();
 
                             try {
-                                
+
                                 // log the plugin is executed once
                                 pluginExecutedOnce(module, host, port);
-                                
+
                                 // Execute the single module and save the vulnerabilities
-                                issues.addAll(j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint));
-                                                               
+                                List<IScanIssue> results = j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint);
+
+                                issues.addAll(results);
+
+                                if (!results.isEmpty()) {
+                                    for (IScanIssue result : results) {
+                                        stdout.println(String.format("[New Issue] Detected %s on URI %s", result.getIssueName(), result.getUrl()));
+                                    }
+                                }
+
                             } catch (SQLException e) {
                                 stderr.println("Ignoring already executed module " + module);
-                            } catch (Exception e){
+                            } catch (Exception e) {
                                 stderr.println("Error during module execution " + module);
                                 e.printStackTrace(stderr);
                             }
-                            
- 
+
                         } else {
-                            
+
                             try {
 
-                                // Execute the generic module
-                                issues.addAll(j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint));
+                                // Execute the single module and save the vulnerabilities
+                                List<IScanIssue> results = j2eeModule.scan(callbacks, baseRequestResponse, insertionPoint);
 
-                            } catch (Exception e){
+                                issues.addAll(results);
+
+                                if (!results.isEmpty()) {
+                                    for (IScanIssue result : results) {
+                                        stdout.println(String.format("[New Issue] Detected %s on URI %s", result.getIssueName(), result.getUrl()));
+                                    }
+                                }
+
+                            } catch (Exception e) {
                                 stderr.println("Error during module execution " + module);
                                 e.printStackTrace(stderr);
                             }
-                            
+
                         }
 
                     }
@@ -275,7 +289,6 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
         stmt.executeUpdate();
 
     }
-
 
     @Override
     public void extensionUnloaded() {
