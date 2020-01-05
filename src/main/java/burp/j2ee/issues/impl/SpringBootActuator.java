@@ -59,8 +59,7 @@ public class SpringBootActuator implements IModule {
             + "</ul>"
             + "<br /><b>References</b><br />"
             + "http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints<br />"
-            + "https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-jmx.html<br />"
-            + "https://www.synacktiv.com/ressources/Synacktiv_OpenBSD_PacketFilter_CVE-2019-5597_ipv6_frag.pdf";
+            + "https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-jmx.html<br />";
     private static final String REMEDY = "Evaluate the availability of the configured endpoint and its risk. Disable or restrict access to this endpointon on the production server";
 
         private static final List<byte[]> GREP_STRINGS = Arrays.asList(
