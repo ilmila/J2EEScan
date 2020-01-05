@@ -12,27 +12,19 @@ web application penetration tests on J2EE applications.
 
 ## How does it works?
 
-The plugin is fully integrated into the Burp Suite Scanner; it adds some new test 
-cases and new strategies to discover different kind of J2EE vulnerabilities.
+The plugin is fully integrated into the Burp Suite Scanner; it adds **more than 70 unique security test 
+cases** and new strategies to discover different kind of J2EE vulnerabilities.
+
+
+ ![IMAGE](assets/issues-example.png)
 
 
  ![IMAGE](https://bitbucket.org/ilmila/j2eescan/raw/dev/resources/j2eescan-results.png)
 
 
-Jetty Version Detection and Remote Leak Shared Buffers vulnerability (CVE-2015-2080)
-
- ![IMAGE](https://bitbucket.org/ilmila/j2eescan/raw/dev/resources/jetty-remote-leak.png)
-
-
-Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
-
- ![IMAGE](https://bitbucket.org/ilmila/j2eescan/raw/dev/resources/wicket.png)
-
-
-
 ## How to install ?
 
- * From "Cookie jar" section in "Options" -> "Sessions" enable the Scanner field
+ * From "Cookie jar" section in "Options" -> "Sessions" enable the Scanner and Extender fields
  * Load the J2EEscan jar in the Burp Extender tab
  * The plugin requires at least Java 1.7
 
@@ -42,6 +34,7 @@ Apache Wicket Arbitrary Resource Access (CVE-2015-2080)
 Special thanks to
 
   * [@h3xstream](https://twitter.com/h3xstream)
+  * [martinbydefault] (https://github.com/martinbydefault)
   * [@ikki](https://twitter.com/_ikki)
   * [@Caligin35](https://twitter.com/Caligin35)
 
