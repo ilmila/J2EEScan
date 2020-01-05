@@ -19,9 +19,6 @@ cases** and new strategies to discover different kind of J2EE vulnerabilities.
  ![IMAGE](assets/issues-example.png)
 
 
- ![IMAGE](https://bitbucket.org/ilmila/j2eescan/raw/dev/resources/j2eescan-results.png)
-
-
 ## How to install ?
 
  * From "Cookie jar" section in "Options" -> "Sessions" enable the Scanner and Extender fields
