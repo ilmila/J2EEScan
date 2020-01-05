@@ -66,7 +66,8 @@ public class SpringBootActuator implements IModule {
         private static final List<byte[]> GREP_STRINGS = Arrays.asList(
             "{\"status\":\"UP\"}".getBytes(),
             "{\"_links\":".getBytes(),
-            "org.spring".getBytes()
+            "org.spring".getBytes(),
+            "java.vendor".getBytes()
     );
         
     
@@ -75,7 +76,8 @@ public class SpringBootActuator implements IModule {
             "/manager/health",
             "/actuator",
             "/actuator/jolokia/list",
-            "/jolokia/list"
+            "/jolokia/list",
+            "/env"
     );
 
     // List of host and port system already tested
