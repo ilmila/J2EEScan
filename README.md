@@ -38,7 +38,7 @@ Special thanks to
 
 ## Release Notes
 
-### Version 1.2.7dev ():
+### Version 2.0.0beta (9 Jan, 2020):
  * Major improved on scan time performance
  * Added check for Spring Data Commons Remote Code Execution (CVE-2018-1273)
  * Added check for PrimeFaces Expression Language Injection (CVE-2017-1000486)
