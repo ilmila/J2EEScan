@@ -1,8 +1,10 @@
-package burp;
+    package burp;
 
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -30,7 +32,9 @@ public class SoftwareVersions {
             /**
              * End of Life - Apache Tomcat
              */
-            if ( Integer.parseInt(release.substring(0, 1)) <= 5 ) {
+            List<Integer> vulnerableTomcatReleases;
+            vulnerableTomcatReleases = Arrays.asList(4, 5, 6, 8);
+            if ( vulnerableTomcatReleases.contains(Integer.parseInt(release.substring(0, 1)))) {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
@@ -40,7 +44,9 @@ public class SoftwareVersions {
                         "J2EEScan identified an unsupported release of Apache Tomcat <b>" + release + "</b>.<br />"
                         + "No more security updates for this version will be released by Apache <br /><br />"
                         + "<b>References</b><br />"
-                        + "http://tomcat.apache.org/tomcat-55-eol.html<br />",
+                        + "http://tomcat.apache.org/tomcat-55-eol.html<br />"
+                        + "https://tomcat.apache.org/tomcat-60-eol.html<br />"
+                        + "https://tomcat.apache.org/tomcat-80-eol.html",
                         "Update the Apache Servlet Container with the last stable release",
                         Risk.High,
                         Confidence.Certain
