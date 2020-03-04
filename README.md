@@ -38,6 +38,10 @@ Special thanks to
 
 ## Release Notes
 
+### Version 2.0.0-beta.2
+ * Added check for AJP Tomcat GhostCat (CVE-2020-1938)
+ * Improve detection for Apache Tomcat EoL
+
 ### Version 2.0.0beta (9 Jan, 2020):
  * Major improved on scan time performance
  * Added check for Spring Data Commons Remote Code Execution (CVE-2018-1273)
