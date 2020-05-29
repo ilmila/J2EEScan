@@ -36,12 +36,14 @@ public class XInclude implements IModule {
             + "https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Processing<br />"
             + "http://vsecurity.com/download/papers/XMLDTDEntityAttacks.pdf<br />";
 
-    private static final String REMEDY = "It's reccomended to disable <pre>XInclude</pre> capability support.";
+    private static final String REMEDY = "It's reccomended to disable <code>XInclude</code> capability support.";
     
     private static final List<Pattern> XINCLUDE_REGEX = Arrays.asList(
-            Pattern.compile("root:.*:0:[01]:", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),
-            Pattern.compile("file not found", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),
-            Pattern.compile("java\\.io\\.FileNotFoundException", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+            Pattern.compile("root:.*:0:[01]:", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+            // TODO FIXME Disable these patterns to avoid FP
+
+            //Pattern.compile("file not found", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),
+            //Pattern.compile("java\\.io\\.FileNotFoundException", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
 
     private static final List<byte[]> XINCLUDE_INJ_TESTS = Arrays.asList(
             "<xi:include href=\"file:///etc/passwd\" parse=\"text\"/>".getBytes());    
