@@ -34,7 +34,8 @@ public class Seam2RCE implements IModule {
 
     private static final String REMEDY = "Upgrade to the latest version of the SEAM framework.";
 
-    private static final byte[] GREP_STRING = "java.lang.UNIXProcess".getBytes();
+    private static final byte[] GREP_STRING_L = "java.lang.UNIXProcess".getBytes();
+    private static final byte[] GREP_STRING_W = "java.lang.ProcessImpl".getBytes();
 
     // List of paths already tested
     private static LinkedHashSet hs = new LinkedHashSet();
@@ -51,9 +52,9 @@ public class Seam2RCE implements IModule {
         if (curURL.getPath().contains(".seam")) {
 
             // Skip already tested resources
-            if (hs.contains(curURL.getPath())) {
-                return issues;
-            }
+            //if (hs.contains(curURL.getPath())) {
+            //    return issues;
+            //}
 
             hs.add(curURL.getPath());
 
@@ -69,8 +70,10 @@ public class Seam2RCE implements IModule {
             IHttpRequestResponse respSimple = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), messageSimple);
             // look for matches of our active check grep string in the response body
             byte[] httpResponseSimple = respSimple.getResponse();
-            List<int[]> matchesSimple = getMatches(httpResponseSimple, GREP_STRING, helpers);
-            if (matchesSimple.size() > 0) {
+            List<int[]> matchesSimple_L = getMatches(httpResponseSimple, GREP_STRING_L, helpers);
+            List<int[]> matchesSimple_W = getMatches(httpResponseSimple, GREP_STRING_W, helpers);
+
+            if (matchesSimple_L.size() > 0 || matchesSimple_W.size() > 0) {
 
                 issues.add(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
@@ -104,8 +107,10 @@ public class Seam2RCE implements IModule {
 
                 // look for matches of our active check grep string in the response body
                 byte[] httpResponse = resp.getResponse();
-                List<int[]> matches = getMatches(httpResponse, GREP_STRING, helpers);
-                if (matches.size() > 0) {
+                List<int[]> matches_L = getMatches(httpResponse, GREP_STRING_L, helpers);
+                List<int[]> matches_W = getMatches(httpResponse, GREP_STRING_W, helpers);
+
+                if (matches_L.size() > 0 || matches_W.size() > 0) {
 
                     issues.add(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
@@ -125,7 +130,7 @@ public class Seam2RCE implements IModule {
                 IResponseInfo responseInfo = helpers.analyzeResponse(httpResponse);
 
                 for (String header : responseInfo.getHeaders()) {
-                    if (header.substring(header.indexOf(":") + 1).trim().contains(helpers.bytesToString(GREP_STRING))) {
+                   if (header.substring(header.indexOf(":") + 1).trim().contains(helpers.bytesToString(GREP_STRING_L)) || header.substring(header.indexOf(":") + 1).trim().contains(helpers.bytesToString(GREP_STRING_W)) ) {
                         issues.add(new CustomScanIssue(
                                 baseRequestResponse.getHttpService(),
                                 helpers.analyzeRequest(baseRequestResponse).getUrl(),
