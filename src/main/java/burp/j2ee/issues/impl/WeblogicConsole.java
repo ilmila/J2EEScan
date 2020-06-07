@@ -64,6 +64,7 @@ public class WeblogicConsole implements IModule {
         List<Map.Entry<String, String>> credentials = new ArrayList<>();
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic1"));
+        credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic01"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "welcome1"));
 
         String body;
@@ -79,7 +80,7 @@ public class WeblogicConsole implements IModule {
         for (Map.Entry<String, String> credential : credentials) {
             String user = credential.getKey();
             String pwd = credential.getValue();
-            body = "userName=" + user + "&password=" + pwd + "&submit=+Login+";
+            body = "userName=" + user + "&password=" + pwd + "&submit=+Login+&j_character_encoding=UTF-8&j_username=" + user + "&j_password=" + pwd;
 
             byte[] loginMessage = helpers.buildHttpMessage(headers, body.getBytes());
             IHttpRequestResponse resp = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), loginMessage);
@@ -90,7 +91,19 @@ public class WeblogicConsole implements IModule {
 
             String locationHeader = HTTPParser.getResponseHeaderValue(weblogicInfo, "Location");
 
-            if ((locationHeader != null) && (locationHeader.contains("/index.jsp"))) {
+            /***
+             * 
+             * On WebLogic Server Version: 10.3.5.0 successful login with static cookies 
+             * 
+             * HTTP/1.1 302 Moved Temporarily
+             * Location: http://<host>:7001/console
+             * Set-Cookie: ADMINCONSOLESESSION=dGyhp1pMQH8NgtmPbN2v7TYcRZfdy21RJ1dXWVL4t3GrSR8ltGBM!-1002201200; path=/
+             * X-Powered-By: Servlet/2.5 JSP/2.1
+             * Content-Length: 263
+             * 
+             */
+            
+            if ((locationHeader != null) && (locationHeader.contains("/index.jsp") || locationHeader.endsWith("/console"))) {
                 return String.format("%s:%s", user, pwd);
             }
         }
