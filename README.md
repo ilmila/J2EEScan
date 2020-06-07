@@ -34,13 +34,17 @@ Special thanks to
   * [martinbydefault] (https://github.com/martinbydefault)
   * [@ikki](https://twitter.com/_ikki)
   * [@Caligin35](https://twitter.com/Caligin35)
+  * [@greenfile](https://github.com/greenfile)
 
 
 ## Release Notes
 
-### Version 2.0.0-beta.2
+### Version 2.0.0beta.2
  * Added check for AJP Tomcat GhostCat (CVE-2020-1938)
  * Improve detection for Apache Tomcat EoL
+ * Improved Jackson CVE-2017-7525 deserialization flaw
+ * Improved EL Injection detection to minimize FP
+ * Improved JBoss Seam 2 Remote Command Execution (thanks to https://github.com/greenfile)
 
 ### Version 2.0.0beta (9 Jan, 2020):
  * Major improved on scan time performance
