@@ -23,7 +23,7 @@ public class HTTPParser {
         headerName = headerName.toLowerCase().replace(":", "");
         for (String header : responseInfo.getHeaders()) {
             if (header.toLowerCase().startsWith(headerName)) {
-                return header.split(":", 0)[1];
+                return header.split(":", 2)[1];
             }
         }
         return null;
