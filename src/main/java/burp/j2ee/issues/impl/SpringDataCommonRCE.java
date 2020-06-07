@@ -37,7 +37,10 @@ public class SpringDataCommonRCE implements IModule {
             + "https://pivotal.io/security/cve-2018-1273<br />"
             + "https://gist.github.com/matthiaskaiser/bfb274222c009b3570ab26436dc8799e<br />"
             + "https://github.com/spring-projects/spring-data-commons/commit/b1a20ae1e82a63f99b3afc6f2aaedb3bf4dc432a<br />"
-            + "https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653";
+            + "https://github.com/spring-projects/spring-data-commons/commit/ae1dd2741ce06d44a0966ecbd6f47beabde2b653<br />"
+            + "https://twitter.com/h3xstream/status/984098634353475584<br />"
+            + "https://mp.weixin.qq.com/s?__biz=MzU0NzYzMzU0Mw==&mid=2247483666&idx=1&sn=91e3b2aab354c55e0677895c02fb068c<br />"
+            + "https://xz.aliyun.com/t/2269";
 
     private static final String REMEDY = "Upgrade the Spring Data Commons library";
 
@@ -84,7 +87,7 @@ public class SpringDataCommonRCE implements IModule {
         String currentCollaboratorPayload = collaboratorContext.generatePayload(true);
 
         // Payload to trigger remote ping
-        String pingPayload = "ping+" + currentCollaboratorPayload;
+        String pingPayload = "ping -c 3 " + currentCollaboratorPayload;
         String finalPayload = String.format(injection, pingPayload);
         String updatedBody = requestBody.replace("=", finalPayload);
 
