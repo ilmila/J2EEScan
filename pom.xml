@@ -63,6 +63,12 @@
             <version>7.0.39</version>
             <type>jar</type>
         </dependency>
+		<!-- SHIRO -->
+		<dependency>
+            <groupId>com.github.frohoff</groupId>
+            <artifactId>ysoserial</artifactId>
+            <version>0.0.6</version>
+        </dependency>
     </dependencies>
     
     <build>
