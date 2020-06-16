@@ -26,10 +26,7 @@ public class ShiroDesAll implements IModule {
 	public static String ENCODING_GBK = "GBK";
 	public static String ENCODING_GB2312 = "GB2312";
 	
-//	public static String payload = null;
 
-//	private static LinkedHashSet hs = new LinkedHashSet();
-//	private  String SHIRO_DESERIALIZATION = new String("Apache Shiro Deserializatio vulnerability 更新到 新版本，注意1.5.2有越权绕过问题".getBytes(ENCODING_UTF8),ENCODING_UTF8);
 	private static final String SHIRO_DESERIALIZATION = "Apache Shiro Deserialization vulnerability ";
 	
 	
@@ -76,7 +73,7 @@ public class ShiroDesAll implements IModule {
 	public synchronized   List<IScanIssue> scan(IBurpExtenderCallbacks callbacks,IHttpRequestResponse baseRequestResponse,
 			IScannerInsertionPoint insertionPoint) {
 		 stderr = new PrintWriter(callbacks.getStderr(), true);
-		 stderr.println("-------------------------------------开始扫描--------------------------------------");
+		
 
 		
 //		 List<IScanIssue> issues = new ArrayList<>();
@@ -110,9 +107,9 @@ public class ShiroDesAll implements IModule {
 
                 IScanIssue tempIssue = getResultWithKey(base64key,callbacks,payload,headers,baseRequestResponse,context);
 //	     		stderr.println("[!] issues size : "+issues.size());
-	     		stderr.println("-------------------------------------------ffffff----------------");
+	     		
 	     		if(tempIssue!=null){
-	     			stderr.println("-------------------------------------------hello----------------");
+	     			
                     issues.add(tempIssue);
 	     			return issues;
 	     		}
@@ -145,13 +142,12 @@ public class ShiroDesAll implements IModule {
 			
 			byte[] modifiedRawRequest = helpers.buildHttpMessage(headers, null);
 		     String request = helpers.bytesToString(modifiedRawRequest);
-		     stderr.println("[!] 当前使用秘钥 : "+base64Key);
-		     stderr.println("[!] 生成request:\n "+request);
+		   
 		     checkRequestResponse = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), modifiedRawRequest);
 		     byte[] bresponse= checkRequestResponse.getResponse();
 		     String resp = helpers.bytesToString(bresponse);
-		     stderr.println("[!] 生成resp:\n "+resp);
-//		     IBurpCollaboratorClientContext context = callbacks.createBurpCollaboratorClientContext();
+		   
+
 		     List<IBurpCollaboratorInteraction> collaboratorInteractions = context.fetchCollaboratorInteractionsFor(payload);
 		     if (checkRequestResponse != null && checkRequestResponse.getResponse() != null
 	        		 && collaboratorInteractions != null&& !collaboratorInteractions.isEmpty()){
@@ -168,7 +164,7 @@ public class ShiroDesAll implements IModule {
 //		    		maps.forEach((k,v)->{
 //		    			  stderr.println("[!] key: "+k+" value: "+v);
 //		    		});
-				 stderr.println("[!] ----------------------发现问题:-----------------------------------  ");
+				
                 return  tempIssue;
 		     }
 		     
