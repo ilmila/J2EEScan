@@ -31,7 +31,7 @@ cases** and new strategies to discover different kind of J2EE vulnerabilities.
 Special thanks to
 
   * [@h3xstream](https://twitter.com/h3xstream)
-  * [martinbydefault] (https://github.com/martinbydefault)
+  * [@martinbydefault](https://github.com/martinbydefault)
   * [@ikki](https://twitter.com/_ikki)
   * [@Caligin35](https://twitter.com/Caligin35)
   * [@greenfile](https://github.com/greenfile)
