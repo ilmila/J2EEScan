@@ -75,16 +75,16 @@ public class SimpleAjpClient {
         message.appendByte(method);
 
         // Protocol
-        message.appendString("http");
+        message.appendString("http/1.1");
 
         // Request URI
         message.appendString(url);
 
         // Remote address
-        message.appendString("10.0.0.1");
+        message.appendString("127.0.0.1");
 
         // Remote host
-        message.appendString("client.dev.local");
+        message.appendString("localhost");
 
         // Server name
         message.appendString(host);
