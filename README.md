@@ -41,10 +41,11 @@ Special thanks to
 
 ### Version 2.0.0beta.2
  * Added check for AJP Tomcat GhostCat (CVE-2020-1938)
- * Improve detection for Apache Tomcat EoL
+ * Improve detection for Apache Tomcat EoL 
  * Improved Jackson CVE-2017-7525 deserialization flaw
  * Improved EL Injection detection to minimize FP
  * Improved JBoss Seam 2 Remote Command Execution (thanks to https://github.com/greenfile)
+ * Added check for Spring Cloud Path Traversal CVE-2020-5410
 
 ### Version 2.0.0beta (9 Jan, 2020):
  * Major improved on scan time performance
