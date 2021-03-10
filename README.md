@@ -12,7 +12,7 @@ web application penetration tests on J2EE applications.
 
 ## How does it works?
 
-The plugin is fully integrated into the Burp Suite Scanner; it adds **more than 70 unique security test 
+The plugin is fully integrated into the Burp Suite Scanner; it adds **more than 80+ unique security test 
 cases** and new strategies to discover different kind of J2EE vulnerabilities.
 
 
