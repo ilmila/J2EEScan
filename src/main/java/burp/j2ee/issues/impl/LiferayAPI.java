@@ -38,8 +38,10 @@ public class LiferayAPI implements IModule{
     );
 
     private final static List<String[]> API = Arrays.asList(
-        new String[]{ "JSON", "Liferay\'s default JSON web service" },
-        new String[]{ "AXIS", "Liferay\'s default SOAP web service" }
+        new String[]{ "JSON", "Liferay\'s default JSON web service", "https://help.liferay.com/hc/en-us/articles/360018151631-JSON-Web-Services <br />" +
+                                                                     "https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers" },
+        new String[]{ "AXIS", "Liferay\'s default SOAP web service", "https://help.liferay.com/hc/en-us/articles/360017872492-SOAP-Web-Services <br />" +
+                                                                     "https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers" }
     );
 
     IExtensionHelpers helpers;
@@ -77,9 +79,10 @@ public class LiferayAPI implements IModule{
                             baseRequestResponse.getHttpService(), 
                             urlMod, 
                             new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
-                            nameDetails[0] + " API found", 
-                            "The " + nameDetails[0] + " API has been found and can be accessed from \"" + urlMod.toString() + 
-                            "\": " + nameDetails[1], 
+                            "Liferay Hardening - API Exposed: " + nameDetails[0], 
+                            "The " + nameDetails[0] + " API has been found and can be accessed from \"" + urlMod.toString() 
+                            + "\": " + nameDetails[1] + ".<br /><br />"
+                            + "<b>References</b>:<br /><br />" + nameDetails[2], 
                             "Restrict API access to local only",
                             Risk.Medium, 
                             Confidence.Certain

@@ -1,5 +1,6 @@
 package burp.j2ee.passive;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,8 +24,8 @@ public class LiferayRule implements PassiveRule {
                      String httpServerHeader, String contentTypeResponse, String xPoweredByHeader){
 
         List<String> strHeader = respInfo.getHeaders();
-        String version;
-        Pattern p = Pattern.compile("Liferay\\s.*");
+        String version = "Not determinable";
+        Pattern p = Pattern.compile("Liferay\\s.*\\d\\.\\d\\.\\d.*"); 
         Matcher m;
 
         IHttpService httpService = baseRequestResponse.getHttpService();
@@ -39,13 +40,18 @@ public class LiferayRule implements PassiveRule {
                 return;
         }
 
-        for(String s : strHeader){
-            if(s.contains("Liferay")){
+        
+
+        Iterator<String> iterator = strHeader.iterator();
+
+        while(iterator.hasNext()){
+            String s = iterator.next();
+            if(s.contains("Liferay") || (!iterator.hasNext() 
+                                        && respBody.contains("id=\"liferayAUICSS\"") 
+                                        && respBody.contains("id=\"liferayPortalCSS\""))){
                 m = p.matcher(s);
                 if(m.find())
                     version = m.group();
-                else
-                    version = "Not determinable";  
                 
                 callbacks.addScanIssue(new CustomScanIssue(
                                             baseRequestResponse.getHttpService(),
@@ -60,8 +66,6 @@ public class LiferayRule implements PassiveRule {
                 break;
             }
         }
-
-
 
     }
 
