@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import burp.IBurpExtenderCallbacks;
 import burp.IHttpRequestResponse;
 import burp.IHttpService;
@@ -17,6 +16,21 @@ import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
 
 public class LiferayRule implements PassiveRule {
+
+
+    private boolean isLiferay(IBurpExtenderCallbacks callbacks, String host, String protocol, int port){
+        
+        for(IScanIssue i : callbacks.getScanIssues("")){            
+            if(i.getHttpService().getHost().equals(host) &&
+                i.getHttpService().getPort() == port &&
+                i.getHttpService().getProtocol().equals(protocol) &&
+                i.getIssueName().equals("J2EEScan - Liferay detected"))
+                return true;
+        }
+
+        return false;
+    }
+
 
     @Override
     public void scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse,
@@ -32,15 +46,9 @@ public class LiferayRule implements PassiveRule {
         String host = httpService.getHost(), protocol = httpService.getProtocol();
         int port = httpService.getPort();
 
-        for(IScanIssue i : callbacks.getScanIssues("")){
-            if(i.getHttpService().getHost().equals(host) &&
-                i.getHttpService().getPort() == port &&
-                i.getHttpService().getProtocol().equals(protocol) &&
-                i.getIssueName().equals("Liferay detected"))
-                return;
+        if(isLiferay(callbacks, host, protocol, port)){
+            return;
         }
-
-        
 
         Iterator<String> iterator = strHeader.iterator();
 
@@ -50,9 +58,21 @@ public class LiferayRule implements PassiveRule {
                                         && respBody.contains("id=\"liferayAUICSS\"") 
                                         && respBody.contains("id=\"liferayPortalCSS\""))){
                 m = p.matcher(s);
-                if(m.find())
+                if(m.find()){
                     version = m.group();
-                
+
+                    callbacks.addScanIssue(new CustomScanIssue(
+                                            baseRequestResponse.getHttpService(),
+                                            reqInfo.getUrl(), 
+                                            baseRequestResponse, 
+                                            "Liferay hardening - Information leakage through HTTP response header",
+                                            "In the HTTP header returned by Liferay there is a field that leaks the version installed."
+                                            + " See 'J2EEScan - Liferay detected' issue for more information", 
+                                            "Remove the response HTTP header Liferay-Portal which leaks internal information regarding platform versioning", 
+                                            Risk.Low, 
+                                            Confidence.Certain));
+                }
+
                 callbacks.addScanIssue(new CustomScanIssue(
                                             baseRequestResponse.getHttpService(),
                                             reqInfo.getUrl(), 
@@ -62,7 +82,7 @@ public class LiferayRule implements PassiveRule {
                                             "", 
                                             Risk.Information, 
                                             Confidence.Certain));
-
+                
                 break;
             }
         }
