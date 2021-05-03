@@ -19,10 +19,25 @@ import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
+import burp.j2ee.IssuesHandler;
 import burp.j2ee.Risk;
 import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
+
+/**
+ * This scanner try to identify if the login and registration page are accessible. If the login 
+ * page can be accessed then the default admin credentials is checked. To send a request to do
+ * the login is necessary to write in the request the JSESSIONID and the p_auth token.
+ * These are related in some way by Liferay, so it is important that they are retrieved correctly.
+ * 
+ * TODO: Get a correct p_auth from http://[host]:[port]/LOGIN_PATH: 
+ * To obtain a correct p_auth we need to send an HTTP request to http://[host]:[port]/LOGIN_PATH_REQ
+ * and then read the response. 
+ * If instead we try to retrieve the p_auth from the previous request used to check the presence of 
+ * the login page (http://[host]:[port]/LOGIN_PATH), the p_auth is wrong.
+ * 
+ */
 public class LiferayDefaultCredentials implements IModule {
  
     private static final String DEFAULT_EMAIL = "test%40liferay.com", 
@@ -46,19 +61,6 @@ public class LiferayDefaultCredentials implements IModule {
     private IExtensionHelpers helpers;
     private PrintWriter stderr;
 
-    private boolean isLiferay(IBurpExtenderCallbacks callbacks, String host, String protocol, int port){
-        
-        for(IScanIssue i : callbacks.getScanIssues("")){
-            if(i.getHttpService().getHost().equals(host) &&
-                i.getHttpService().getPort() == port &&
-                i.getHttpService().getProtocol().equals(protocol) &&
-                i.getIssueName().equals("J2EEScan - Liferay detected"))
-                return true;
-        }
-
-        return false;
-    }
-
     @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         List<IScanIssue> issues = new ArrayList<>();
@@ -72,7 +74,11 @@ public class LiferayDefaultCredentials implements IModule {
         int port = url.getPort();
         Boolean useHttps = protocol.equals("https");
 
-        if(!isLiferay(callbacks, host, protocol, port)){
+        // Check if Liferay has been found
+        if (!IssuesHandler.isvulnerabilityFound(callbacks,
+                "J2EEScan - Liferay detected",
+                protocol,
+                host)) {
             return issues;
         }
 
@@ -95,7 +101,10 @@ public class LiferayDefaultCredentials implements IModule {
                             urlMod, 
                             new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
                             "Liferay Hardening - Login page found", 
-                            "The Liferay login page can be accessed from \"" + urlMod.toString() + "\".", 
+                            "The Liferay login page can be accessed from \"" + urlMod.toString() + "\"."
+                            + "<br /><br /><b>References</b>:<br /><br />"
+                            + "https://help.liferay.com/hc/es/articles/360028711192-Introduction-to-Securing-Liferay-DXP<br/>"
+                            + "https://liferay.dev/blogs/-/blogs/quick-tips-for-liferay-hardening<br/>", 
                             "Disable access to the login page",
                             Risk.Information, 
                             Confidence.Certain
@@ -153,8 +162,8 @@ public class LiferayDefaultCredentials implements IModule {
                                     urlMod, 
                                     new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
                                     "Liferay Hardening - Default admin credentials found", 
-                                    "The default admin credentials have been found.\n Email: " + DEFAULT_EMAIL.replace("%40", "@")
-                                    + "\nPassword: " + DEFAULT_PASSWORD, 
+                                    "The default admin credentials have been found.<br/> Email: " + DEFAULT_EMAIL.replace("%40", "@")
+                                    + "<br/>Password: " + DEFAULT_PASSWORD, 
                                     "Disable the default admin user",
                                     Risk.High, 
                                     Confidence.Certain
@@ -183,7 +192,10 @@ public class LiferayDefaultCredentials implements IModule {
                             urlMod, 
                             new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
                             "Liferay Hardening - Registration page found", 
-                            "The Liferay registration page can be accessed from \"" + urlMod.toString() + "\".", 
+                            "The Liferay registration page can be accessed from \"" + urlMod.toString() + "\"."
+                            + "<br /><br /><b>References</b>:<br /><br />"
+                            + "https://help.liferay.com/hc/es/articles/360028711192-Introduction-to-Securing-Liferay-DXP<br/>"
+                            + "https://liferay.dev/blogs/-/blogs/quick-tips-for-liferay-hardening<br/>", 
                             "Disable access to the registration page",
                             Risk.Information, 
                             Confidence.Certain

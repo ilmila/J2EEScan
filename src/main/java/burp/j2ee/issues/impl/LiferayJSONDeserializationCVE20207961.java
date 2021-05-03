@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.URL;
@@ -22,6 +21,7 @@ import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
+import burp.j2ee.IssuesHandler;
 import burp.j2ee.Risk;
 import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
@@ -96,13 +96,6 @@ public class LiferayJSONDeserializationCVE20207961 implements IModule{
         helpers = callbacks.getHelpers();
         stderr = new PrintWriter(callbacks.getStderr(), true);
 
-        IBurpCollaboratorClientContext collaboratorContext = callbacks.createBurpCollaboratorClientContext();
-        String currentCollaboratorPayload = collaboratorContext.generatePayload(true);
-            
-        String payload = PAYLOAD_PREFIX + 
-            String.format("%040x", new BigInteger(1, helpers.stringToBytes("http://" + currentCollaboratorPayload))) + 
-            PAYLOAD_SUFIX;
-    
         IRequestInfo reqInfo = helpers.analyzeRequest(baseRequestResponse);
 
         URL url = reqInfo.getUrl();
@@ -110,6 +103,21 @@ public class LiferayJSONDeserializationCVE20207961 implements IModule{
         int port = url.getPort();
         Boolean useHttps = protocol.equals("https");
         
+        // Check if Liferay has been found
+        if (!IssuesHandler.isvulnerabilityFound(callbacks,
+                "J2EEScan - Liferay detected",
+                protocol,
+                host)) {
+            return issues;
+        }
+
+        IBurpCollaboratorClientContext collaboratorContext = callbacks.createBurpCollaboratorClientContext();
+        String currentCollaboratorPayload = collaboratorContext.generatePayload(true);
+            
+        String payload = PAYLOAD_PREFIX + 
+            String.format("%040x", new BigInteger(1, helpers.stringToBytes("http://" + currentCollaboratorPayload))) + 
+            PAYLOAD_SUFIX;
+
         try {   
             URL urlMod = new URL(protocol, host, port, PATH);
             byte[] request = helpers.buildHttpRequest(urlMod);
