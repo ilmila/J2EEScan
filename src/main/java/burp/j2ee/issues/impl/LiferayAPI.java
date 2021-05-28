@@ -4,11 +4,14 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.PrintWriter;
 import java.net.URL;
+
+import static burp.HTTPMatcher.getApplicationContext;
 
 import burp.CustomHttpRequestResponse;
 import burp.IBurpExtenderCallbacks;
@@ -22,7 +25,6 @@ import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.IssuesHandler;
 import burp.j2ee.Risk;
-import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 public class LiferayAPI implements IModule{
@@ -52,10 +54,12 @@ public class LiferayAPI implements IModule{
                                                                      "https://help.liferay.com/hc/en-us/articles/360017872472-Service-Security-Layers" }
     );
 
+    // List of host and port system already tested
+    private static LinkedHashSet<String> hs = new LinkedHashSet<String>();
+    
     IExtensionHelpers helpers;
     PrintWriter stderr;
 
-    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         List<IScanIssue> issues = new ArrayList<>();
         helpers = callbacks.getHelpers();
@@ -74,98 +78,117 @@ public class LiferayAPI implements IModule{
                     host)) {
                 return issues;
         }
-        
+
+        // Check if the APIs have already been found
+        for(String[] APIName : API)
+            if(IssuesHandler.isvulnerabilityFound(callbacks, 
+                        "J2EEScan - Liferay Hardening - API Exposed: " + APIName[0], 
+                        protocol, 
+                        host)){
+                return issues;
+            }
+
         Iterator<Pattern> patternIterator = PATTERNS.iterator();
         Iterator<String[]> APIIterator = API.iterator();
 
-        for(String path : PATHS){
-            String[] nameDetails = APIIterator.next();
-            try{
-                if(nameDetails[0].contains("JSON") || nameDetails[0].contains("AXIS")){
-                    Pattern p = patternIterator.next();
 
-                    URL urlMod = new URL(protocol, host, port, path);
-                    byte[] request = helpers.buildHttpRequest(urlMod);
-                    byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request);
+        String contextList[] = { "", getApplicationContext(url) };
+        
+        for(String context : contextList){
+
+            String system = host + Integer.toString(port) + context;
+            if(!hs.add(system))
+                continue;
+
+            for(String path : PATHS){
+                String[] nameDetails = APIIterator.next();
+            
+                try{
+                    URL urlMod = new URL(protocol, host, port, context + path);
+
+                    if(nameDetails[0].contains("JSON") || nameDetails[0].contains("AXIS")){
+                        Pattern p = patternIterator.next();
+
+                        byte[] request = helpers.buildHttpRequest(urlMod);
+                        byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request);
                 
-                    IResponseInfo respInfo = helpers.analyzeResponse(response);
+                        IResponseInfo respInfo = helpers.analyzeResponse(response);
 
-                    if(respInfo.getStatusCode() == 200){
-                        Matcher m = p.matcher(helpers.bytesToString(response));
+                        if(respInfo.getStatusCode() == 200){
+                            Matcher m = p.matcher(helpers.bytesToString(response));
 
-                        if(m.matches()){
-                            issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(), 
-                                urlMod, 
-                                new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
-                                "Liferay Hardening - API Exposed: " + nameDetails[0], 
-                                "The " + nameDetails[0] + " API has been found and can be accessed from \"" + urlMod.toString() 
-                                + "\": " + nameDetails[1] + ".<br /><br />"
-                                + "<b>References</b>:<br /><br />" + nameDetails[2], 
-                                "Restrict API access to local only",
-                                Risk.Medium, 
-                                Confidence.Certain
-                            ));
+                            if(m.matches()){
+                                issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(), 
+                                    urlMod, 
+                                    new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
+                                    "Liferay Hardening - API Exposed: " + nameDetails[0], 
+                                    "The " + nameDetails[0] + " API has been found and can be accessed from \"" + urlMod.toString() 
+                                    + "\": " + nameDetails[1] + ".<br /><br />"
+                                    + "<b>References</b>:<br /><br />" + nameDetails[2], 
+                                    "Restrict API access to local only",
+                                    Risk.Medium, 
+                                    Confidence.Certain
+                                ));
+                            }
                         }
-                    }
-                }else if(nameDetails[0].contains("Tunnel")){
-                    Pattern p = patternIterator.next();
+                    }else if(nameDetails[0].contains("Tunnel")){
+                        Pattern p = patternIterator.next();
 
-                    URL urlMod = new URL(protocol, host, port, path);
-                    byte[] request = helpers.buildHttpRequest(urlMod);
-                    byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request);
+                        byte[] request = helpers.buildHttpRequest(urlMod);
+                        byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request);
                     
-                    IResponseInfo respInfo = helpers.analyzeResponse(response);
+                        IResponseInfo respInfo = helpers.analyzeResponse(response);
 
-                    if(respInfo.getStatusCode() == 404){
-                        Matcher m = p.matcher(helpers.bytesToString(response));
+                        if(respInfo.getStatusCode() == 404){
+                            Matcher m = p.matcher(helpers.bytesToString(response));
 
-                        if(m.matches()){
-                            issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(), 
-                                urlMod, 
-                                new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
-                                "Liferay Hardening - API Exposed: " + nameDetails[0], 
-                                "The " + nameDetails[0] + " servlet has been found at \"" + urlMod.toString() 
-                                + "\".<br /><br />"
-                                + "<b>References</b>:<br /><br />" + nameDetails[2], 
-                                "Restrict servlet access to local only",
-                                Risk.Medium, 
-                                Confidence.Firm
-                            ));
+                            if(m.matches()){
+                                issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(), 
+                                    urlMod, 
+                                    new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
+                                    "Liferay Hardening - API Exposed: " + nameDetails[0], 
+                                    "The " + nameDetails[0] + " servlet has been found at \"" + urlMod.toString() 
+                                    + "\".<br /><br />"
+                                    + "<b>References</b>:<br /><br />" + nameDetails[2], 
+                                    "Restrict servlet access to local only",
+                                    Risk.Medium, 
+                                    Confidence.Firm
+                                ));
+                            }
                         }
-                    }
-                }else if(nameDetails[0].contains("WebDAV")){
-                    URL urlMod = new URL(protocol, host, port, path);
-                    byte[] request = helpers.buildHttpRequest(urlMod);
-                    reqInfo = helpers.analyzeRequest(request);
+                    }else if(nameDetails[0].contains("WebDAV")){
+                        byte[] request = helpers.buildHttpRequest(urlMod);
+                        reqInfo = helpers.analyzeRequest(request);
 
-                    List<String> headers = reqInfo.getHeaders();
-                    headers.set(0, "PROPFIND " + path + " HTTP/1.1");
-                    request = helpers.buildHttpMessage(headers, helpers.stringToBytes(""));  
+                        List<String> headers = reqInfo.getHeaders();
+                        headers.set(0, "PROPFIND " + path + " HTTP/1.1");
+                        request = helpers.buildHttpMessage(headers, helpers.stringToBytes(""));  
 
-                    byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request);
-                    IResponseInfo respInfo = helpers.analyzeResponse(response);
+                        byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request);
+                        IResponseInfo respInfo = helpers.analyzeResponse(response);
 
-                    if(respInfo.getStatusCode() == 401){
-                        issues.add(new CustomScanIssue(
-                                baseRequestResponse.getHttpService(), 
-                                urlMod, 
-                                new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
-                                "Liferay Hardening - API Exposed: " + nameDetails[0], 
-                                "The " + nameDetails[0] + " servlet has been found at \"" + urlMod.toString() 
-                                + "\": " + nameDetails[1] + ".<br /><br />"
-                                + "<b>References</b>:<br /><br />" + nameDetails[2], 
-                                "Restrict servlet access to local only",
-                                Risk.Medium, 
-                                Confidence.Firm
-                            ));
-                    }
+                        if(respInfo.getStatusCode() == 401){
+                            issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(), 
+                                    urlMod, 
+                                    new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
+                                    "Liferay Hardening - API Exposed: " + nameDetails[0], 
+                                    "The " + nameDetails[0] + " servlet has been found at \"" + urlMod.toString() 
+                                    + "\": " + nameDetails[1] + ".<br /><br />"
+                                    + "<b>References</b>:<br /><br />" + nameDetails[2], 
+                                    "Restrict servlet access to local only",
+                                    Risk.Medium, 
+                                    Confidence.Firm
+                                ));
+                        }
                    
-                }
+                    }
 
-            }catch(MalformedURLException ex){
-                stderr.println("Malformed URL Exception: " + ex);
+                }catch(MalformedURLException ex){
+                    stderr.println("Malformed URL Exception: " + ex);
+                }
             }
         }
 

