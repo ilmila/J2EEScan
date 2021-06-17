@@ -31,10 +31,21 @@ public class SoftwareVersions {
 
             /**
              * End of Life - Apache Tomcat
+             * Apache Tomcat 5.x
+             *   - http://tomcat.apache.org/tomcat-55-eol.html
+             * Apache Tomcat 6.x
+             *  - http://tomcat.apache.org/tomcat-60-eol.html
+             * Apache Tomcat 7.x 
+             *  - http://tomcat.apache.org/tomcat-70-eol.html
+             * Apache Tomcat 8.0
+             *  - http://tomcat.apache.org/tomcat-80-eol.html   
+             *  . 
              */
             List<Integer> vulnerableTomcatReleases;
             vulnerableTomcatReleases = Arrays.asList(4, 5, 6, 8);
-            if ( vulnerableTomcatReleases.contains(Integer.parseInt(release.substring(0, 1)))) {
+            
+            // TODO replace with regexp
+            if ( vulnerableTomcatReleases.contains(Integer.parseInt(release.substring(0, 1))) && !release.startsWith("8.5") ) {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
