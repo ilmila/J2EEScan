@@ -12,6 +12,7 @@ import burp.j2ee.passive.ExceptionRule;
 import burp.j2ee.passive.HttpServerHeaderRule;
 import burp.j2ee.passive.JSPostMessage;
 import burp.j2ee.passive.JettyRule;
+import burp.j2ee.passive.LiferayRule;
 import burp.j2ee.passive.PassiveRule;
 import burp.j2ee.passive.SessionFixation;
 import burp.j2ee.passive.SessionIDInURL;
@@ -31,7 +32,8 @@ public class PassiveScanner {
         new JettyRule(),
         new SessionIDInURL(),
         new JSPostMessage(),
-        new SessionFixation()
+        new SessionFixation(),
+        new LiferayRule()
     };
 
     public static void scanVulnerabilities(IHttpRequestResponse baseRequestResponse,

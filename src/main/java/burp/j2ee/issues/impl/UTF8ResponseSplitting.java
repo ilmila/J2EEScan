@@ -61,8 +61,6 @@ public class UTF8ResponseSplitting implements IModule {
 
         String protocol = url.getProtocol();
         Boolean isSSL = (protocol.equals("https"));
-
-        stderr.println(insertionPoint.getInsertionPointName());
                     
         // make a request containing our injection test in the insertion point
         byte[] checkRequest = insertionPoint.buildRequest(INJ);

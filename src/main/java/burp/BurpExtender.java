@@ -16,7 +16,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -29,6 +31,7 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
     private IExtensionHelpers helpers;
     private Connection conn;
     private File j2eeDBState;
+    private Set<String> alreadyExecutedModule;
 
     //
     // implement IBurpExtender
@@ -86,6 +89,8 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
         } catch (ClassNotFoundException ex) {
             stderr.println(ex);
         }
+
+        alreadyExecutedModule = new HashSet<>();
 
         // register ourselves as a custom scanner check
         callbacks.registerScannerCheck(this);
@@ -201,7 +206,8 @@ public class BurpExtender implements IBurpExtender, IScannerCheck, IExtensionSta
                                 }
 
                             } catch (SQLException e) {
-                                stderr.println("Ignoring already executed module " + module);
+                                if(alreadyExecutedModule.add(module))
+                                    stderr.println("Ignoring already executed module " + module);
                             } catch (Exception e) {
                                 stderr.println("Error during module execution " + module);
                                 e.printStackTrace(stderr);

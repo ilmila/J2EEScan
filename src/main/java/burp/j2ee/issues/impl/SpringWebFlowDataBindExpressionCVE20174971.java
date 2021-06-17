@@ -49,7 +49,7 @@ public class SpringWebFlowDataBindExpressionCVE20174971 implements IModule {
 
         IExtensionHelpers helpers = callbacks.getHelpers();
         stderr = new PrintWriter(callbacks.getStderr(), true);
-        stdout = new PrintWriter(callbacks.getStderr(), true);
+        stdout = new PrintWriter(callbacks.getStdout(), true);
 
         IRequestInfo reqInfo = helpers.analyzeRequest(baseRequestResponse);
 

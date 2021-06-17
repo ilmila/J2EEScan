@@ -67,7 +67,7 @@ public class PrimeFacesELInjection implements IModule {
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
         IExtensionHelpers helpers = callbacks.getHelpers();
         stderr = new PrintWriter(callbacks.getStderr(), true);
-        stdout = new PrintWriter(callbacks.getStderr(), true);
+        stdout = new PrintWriter(callbacks.getStdout(), true);
 
         IRequestInfo reqInfo = helpers.analyzeRequest(baseRequestResponse);
 
