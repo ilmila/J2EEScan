@@ -66,7 +66,8 @@ public class SpringBootActuator implements IModule {
             "{\"status\":\"UP\"}".getBytes(),
             "{\"_links\":".getBytes(),
             "org.spring".getBytes(),
-            "java.vendor".getBytes()
+            "java.vendor".getBytes(),
+            "\"class\":\"org.jolokia.backend.Config\"".getBytes()
     );
         
     
