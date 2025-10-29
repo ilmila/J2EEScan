@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 public class HTTPMatcher {
 
@@ -120,6 +121,18 @@ public class HTTPMatcher {
         return false;
     }
 
+    public static boolean isWinIni(byte[] response, IExtensionHelpers helpers) {
+        final byte[] WININI_PATTERN = "for 16-bit app support".getBytes();
+
+        List<int[]> match = getMatches(response, WININI_PATTERN, helpers);
+
+        if (match.size() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static boolean isEtcShadowFile(byte[] response, IExtensionHelpers helpers) {
         final byte[] SHADOW_PATTERN = "root:".getBytes();
         List<int[]> matchesShadow = getMatches(response, SHADOW_PATTERN, helpers);
@@ -201,33 +214,128 @@ public class HTTPMatcher {
      */
     public static String getApplicationContext(URL url) {
 
-        String host = url.getHost();
-        String protocol = url.getProtocol();
         String path = url.getPath();
-        int port = url.getPort();
-
         int i = path.indexOf("/", 1);
         String context = path.substring(0, i + 1);
 
         return context;
     }
 
+    
+     
+    /**
+     * Detect the application context and the first nested path
+     * Strategy used to test some Path Traversal issues
+     * 
+     * Ex: http://www.example.org/myapp/assets/test.jsf
+     *
+     * returns /myapp/assets/
+     */
+    public static String getApplicationContextAndNestedPath(URL url) {
+
+        String path = url.getPath();
+        int i = path.lastIndexOf('/');
+        String context = path.substring(0, i + 1);
+
+        return (StringUtils.countMatches(context, "/") == 3) ? context : "";
+    }
+    
     /**
      * Iterate on a list of URIs paths and apply some modifiers to circumvent
      * some weak ACL protections or weak/wrong mod_rewrite rules.
      *
-     * Example: * CWE-50: Path Equivalence: '//multiple/leading/slash' *
+     * Example: CWE-50: Path Equivalence: '//multiple/leading/slash' *
      * https://cwe.mitre.org/data/definitions/50.html
+     *
+     * Path Equivalence Semicolon Authorization Bypass GET
+     * /private/administrative/login.htm -> 403
+     * /private/administrative;/login.htm -> 200 OK
+     *
+     * Invalid UTF8 . /admin/test/admin/login.jsp -> 403
+     * /admin/test/%c0%afadmin/login.jsp -> 200 OK
      *
      */
     public static List URIMutator(List<String> uripaths) {
         List<String> modifiedPaths = new ArrayList<>();
         modifiedPaths.addAll(uripaths);
 
+        // CWE-50 Path Equivalence: '//multiple/leading/slash'
         for (int i = 0; i < uripaths.size(); i += 1) {
-            modifiedPaths.set(i, "/" + uripaths.get(i));
+            String curPath = uripaths.get(i);
+            if (!"/".equals(curPath)) {
+                modifiedPaths.add("/" + curPath);
+            }
         }
 
+        // CWE-41 Path Equivalence: '//multiple//leading//slash'
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String curPath = uripaths.get(i);
+            if (!"/".equals(curPath)) {
+                modifiedPaths.add(curPath.replaceAll("/", "//"));
+            }
+        }
+
+        // Path Equivalence Semicolon 
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+                int ind = reqPath.lastIndexOf("/");
+                if (ind > 0) {
+                    String semicolonPath = new StringBuilder(reqPath).replace(ind, ind + 1, ";/").toString();
+                    modifiedPaths.add(semicolonPath);
+                }
+            }
+        }
+
+        // Invalid UTF8 %c0%af in URL to bypass WAF or weak ACLs
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+
+                int currentIndex = reqPath.indexOf("/");
+                while (currentIndex >= 0) {
+                    String utf8DotPath = new StringBuilder(reqPath).replace(currentIndex, currentIndex + 1, "/%c0%af").toString();
+                    modifiedPaths.add(utf8DotPath);
+                    
+                    currentIndex = reqPath.indexOf("/", currentIndex + 1);
+                    
+                }
+            }
+        }
+        
+        // Invalid %2f
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+
+                int currentIndex = reqPath.indexOf("/");
+                while (currentIndex >= 0) {
+                    String utf8DotPath = new StringBuilder(reqPath).replace(currentIndex, currentIndex + 1, "/%2f").toString();
+                    modifiedPaths.add(utf8DotPath);
+                    
+                    currentIndex = reqPath.indexOf("/", currentIndex + 1);
+                    
+                }
+            }
+        }
+        
+        // Invalid %252f
+        for (int i = 0; i < uripaths.size(); i += 1) {
+            String reqPath = uripaths.get(i);
+            if (!"/".equals(reqPath)) {
+
+                int currentIndex = reqPath.indexOf("/");
+                while (currentIndex >= 0) {
+                    String utf8DotPath = new StringBuilder(reqPath).replace(currentIndex, currentIndex + 1, "/%252f").toString();
+                    modifiedPaths.add(utf8DotPath);
+                    
+                    currentIndex = reqPath.indexOf("/", currentIndex + 1);
+                    
+                }
+            }
+        }
+        
+        
         return modifiedPaths;
     }
 
@@ -248,22 +356,22 @@ public class HTTPMatcher {
 
         String curExtension = "";
 
-        try {
-            int i = url.getPath().lastIndexOf('.');
-            if (i > 0) {
-                curExtension = curExtension.substring(i + 1);
-            }
-        } catch (Exception e) {
+        int i = url.getPath().lastIndexOf('.');
+        if (i > 0) {
+            curExtension = url.getPath().substring(i + 1);
+        } else {
+            // If the path does not contain an extension
+            // fallback and return true to minimize false negatives on checks
             return true;
         }
-        
-        List genericoExtensions = new ArrayList<>();
-        genericoExtensions.add("php");
-        genericoExtensions.add("asp");
-        genericoExtensions.add("cgi");
-        genericoExtensions.add("pl");
 
-        return genericoExtensions.contains(curExtension);
+        List notJ2EETechs = new ArrayList<>();
+        notJ2EETechs.add("php");
+        notJ2EETechs.add("asp");
+        notJ2EETechs.add("cgi");
+        notJ2EETechs.add("pl");
+
+        return (!notJ2EETechs.contains(curExtension));
 
     }
 }

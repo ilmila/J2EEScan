@@ -37,7 +37,7 @@ public class ApacheTomcatRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("Apache Tomcat", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Aapache%3Atomcat%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Aapache%3Atomcat%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -45,7 +45,7 @@ public class ApacheTomcatRule implements PassiveRule {
                         "Information Disclosure - Apache Tomcat " + version,
                         "J2EEscan identified the remote Servlet Container release; "
                                 + "Apache Tomcat  version <b>" + version + "</b>.<br />"
-                                + "The potential vulnerabilities for this release are available at:<br />"
+                                + "Potential vulnerabilities for this release are available at:<br />"
                                 + "<ul><li>" + nistLink + "</li></ul><br /><br />"
                                 + "<b>References</b><br />"
                                 + "http://tomcat.apache.org/security.html",

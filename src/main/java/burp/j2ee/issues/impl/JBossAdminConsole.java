@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -14,6 +15,7 @@ import burp.WeakPassword;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 import java.io.PrintWriter;
@@ -32,6 +34,11 @@ import java.util.regex.Pattern;
  *
  * http://docs.jboss.org/jbossas/6/Admin_Console_Guide/en-US/html/Administration_Console_User_Guide-Accessing_the_Console.html
  * http://docs.jboss.org/jbossas/6/Admin_Console_Guide/en-US/html/
+ * 
+ * Checks:
+ *  * JBoss Admin Console (detection)
+ *  * JBoss Admin Console Weak Password
+ *  * JBoss SEAM Remote Command Execution (CVE 2010-1871)
  *
  */
 public class JBossAdminConsole implements IModule {
@@ -134,7 +141,7 @@ public class JBossAdminConsole implements IModule {
         }
     }
 
-    @Override
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -158,7 +165,8 @@ public class JBossAdminConsole implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String JBOSS_ADMIN_PATH : JBOSS_ADMIN_PATHS) {
+            List<String> JBOSS_ADMIN_PATHS_MUTATED = URIMutator(JBOSS_ADMIN_PATHS);
+            for (String JBOSS_ADMIN_PATH : JBOSS_ADMIN_PATHS_MUTATED) {
 
                 try {
 

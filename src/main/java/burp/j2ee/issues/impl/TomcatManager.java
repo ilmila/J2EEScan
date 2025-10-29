@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import burp.HTTPParser;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -13,6 +14,7 @@ import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -42,7 +44,7 @@ public class TomcatManager implements IModule {
             "/manager/html"
     );
 
-    @SuppressWarnings("empty-statement")
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -65,7 +67,8 @@ public class TomcatManager implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String TOMCAT_MANAGER_PATH : TOMCAT_MANAGER_PATHS) {
+            List<String> TOMCAT_MANAGER_PATHS_MUTATED = URIMutator(TOMCAT_MANAGER_PATHS);
+            for (String TOMCAT_MANAGER_PATH : TOMCAT_MANAGER_PATHS_MUTATED) {
 
                 try {
                     // Test the presence of tomcat console
@@ -81,9 +84,10 @@ public class TomcatManager implements IModule {
                         // Check Authorization header
 
                         /**
-                         * HTTP/1.1 401 Unauthorized Server: Apache-Coyote/1.1
-                         * Jan 1970 01:00:00 CET WWW-Authenticate: Basic
-                         * realm="Tomcat Manager Application"
+                         * HTTP/1.1 401 Unauthorized 
+                         * Server: Apache-Coyote/1.1
+                         * Jan 1970 01:00:00 CET 
+                         * WWW-Authenticate: Basic realm="Tomcat Manager Application"
                          */
                         List<String> responseHeaders = tomcatManagerInfo.getHeaders();
                         for (int h = 0; h < responseHeaders.size(); h++) {

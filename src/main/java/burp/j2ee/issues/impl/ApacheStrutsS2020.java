@@ -1,5 +1,6 @@
 package burp.j2ee.issues.impl;
 
+import static burp.HTTPMatcher.isJavaApplicationByURL;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -47,65 +48,66 @@ public class ApacheStrutsS2020 implements IModule {
 
         IRequestInfo reqInfo = callbacks.getHelpers().analyzeRequest(baseRequestResponse);
         List<IParameter> parameters = reqInfo.getParameters();
-        
+
         URL curURL = reqInfo.getUrl();
 
         byte[] modifiedRawRequest = null;
         List<IScanIssue> issues = new ArrayList<>();
 
-            
-        if (curURL.getPath().contains(".action")) {
-            byte[] rawrequest = baseRequestResponse.getRequest();
-            //Remove URI parameters
-            for (IParameter param : parameters) {
-                    rawrequest = callbacks.getHelpers().removeParameter(rawrequest, param);
-                }
-            
-            // Dynamic random string for URL classloader
-            long unixTime = System.currentTimeMillis() / 1000L;
-            String classLoaderStringTest = "testClassloaderManipulation" + unixTime;
-            
-            /**
-             * Make a request containing our injection test in the insertion point
-             * 
-             * Original fix for this vulnerability was to to forbid the (.*\.|^)class\..* regex
-             * https://github.com/apache/struts/commit/aaf5a3010e3c11ae14e3d3c966a53ebab67146be
-             * 
-             *  It was possible to bypass this "protection" using "Class.classloader" (capital 'C').
-             * 
-             *  This payload covers also Apache Struts S2-021 advisory, caused by
-             *  a wrong patch attempt.
-             */
-            modifiedRawRequest = callbacks.getHelpers().addParameter(rawrequest,
-                    callbacks.getHelpers().buildParameter("Class.classLoader.URLs[0]", 
-                            classLoaderStringTest, IParameter.PARAM_URL)
-            );
- 
-            IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
-                 baseRequestResponse.getHttpService(), modifiedRawRequest);
-
-            
-            // Get the response body
-            byte[] responseBytes = checkRequestResponse.getResponse();
-            String response = helpers.bytesToString(responseBytes);
-                   
-            
-            Matcher matcher = CLASSLOADER_PM.matcher(response);
-            
-            if (matcher.find()) {
-                issues.add(new CustomScanIssue(
-                        baseRequestResponse.getHttpService(),
-                        reqInfo.getUrl(),
-                        checkRequestResponse,
-                        TITLE,
-                        DESCRIPTION,
-                        REMEDY,
-                        Risk.High,
-                        Confidence.Certain
-                ));
-            }              
+        if (!isJavaApplicationByURL(curURL)) {
+            return issues;
         }
-        
+
+        byte[] rawrequest = baseRequestResponse.getRequest();
+        //Remove URI parameters
+        for (IParameter param : parameters) {
+            rawrequest = callbacks.getHelpers().removeParameter(rawrequest, param);
+        }
+
+        // Dynamic random string for URL classloader
+        long unixTime = System.currentTimeMillis() / 1000L;
+        String classLoaderStringTest = "testClassloaderManipulation" + unixTime;
+
+        /**
+         * Make a request containing our injection test in the insertion point
+         *
+         * Original fix for this vulnerability was to to forbid the
+         * (.*\.|^)class\..* regex
+         * https://github.com/apache/struts/commit/aaf5a3010e3c11ae14e3d3c966a53ebab67146be
+         *
+         * It was possible to bypass this "protection" using "Class.classloader"
+         * (capital 'C').
+         *
+         * This payload covers also Apache Struts S2-021 advisory, caused by a
+         * wrong patch attempt.
+         */
+        modifiedRawRequest = callbacks.getHelpers().addParameter(rawrequest,
+                callbacks.getHelpers().buildParameter("Class.classLoader.URLs[0]",
+                        classLoaderStringTest, IParameter.PARAM_URL)
+        );
+
+        IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
+                baseRequestResponse.getHttpService(), modifiedRawRequest);
+
+        // Get the response body
+        byte[] responseBytes = checkRequestResponse.getResponse();
+        String response = helpers.bytesToString(responseBytes);
+
+        Matcher matcher = CLASSLOADER_PM.matcher(response);
+
+        if (matcher.find()) {
+            issues.add(new CustomScanIssue(
+                    baseRequestResponse.getHttpService(),
+                    reqInfo.getUrl(),
+                    checkRequestResponse,
+                    TITLE,
+                    DESCRIPTION,
+                    REMEDY,
+                    Risk.High,
+                    Confidence.Certain
+            ));
+        }
+
         return issues;
     }
 }

@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.HTTPParser;
 import burp.IBurpExtenderCallbacks;
@@ -14,6 +15,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -65,7 +67,7 @@ public class WeblogicUDDIExplorer implements IModule {
             "/uddiexplorer/"
     );
 
-    @SuppressWarnings("empty-statement")
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -88,7 +90,8 @@ public class WeblogicUDDIExplorer implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String UDDI_PATH : UDDI_PATHS) {
+            List<String> UDDI_PATHS_MUTATED = URIMutator(UDDI_PATHS);
+            for (String UDDI_PATH : UDDI_PATHS_MUTATED) {
 
                 try {
 
@@ -117,7 +120,7 @@ public class WeblogicUDDIExplorer implements IModule {
                         }
 
                         // Test for SSRF vulnerability
-                        String SSRF_PATH = "/uddiexplorer/SearchPublicRegistries.jsp?operator=http://localhost:22&rdoSearch=name&txtSearchname=sdf&txtSearchkey=&txtSearchfor=&selfor=Business+location&btnSubmit=Search";
+                        String SSRF_PATH = UDDI_PATH + "/SearchPublicRegistries.jsp?operator=http://localhost:22&rdoSearch=name&txtSearchname=sdf&txtSearchkey=&txtSearchfor=&selfor=Business+location&btnSubmit=Search";
                         URL ssrfUrlToTest = new URL(protocol, url.getHost(), url.getPort(), SSRF_PATH);
                         byte[] ssrfRootRequest = helpers.buildHttpRequest(ssrfUrlToTest);
 

@@ -1,8 +1,10 @@
-package burp;
+    package burp;
 
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -29,8 +31,21 @@ public class SoftwareVersions {
 
             /**
              * End of Life - Apache Tomcat
+             * Apache Tomcat 5.x
+             *   - http://tomcat.apache.org/tomcat-55-eol.html
+             * Apache Tomcat 6.x
+             *  - http://tomcat.apache.org/tomcat-60-eol.html
+             * Apache Tomcat 7.x 
+             *  - http://tomcat.apache.org/tomcat-70-eol.html
+             * Apache Tomcat 8.0
+             *  - http://tomcat.apache.org/tomcat-80-eol.html   
+             *  . 
              */
-            if ( Integer.parseInt(release.substring(0, 1)) <= 5 ) {
+            List<Integer> vulnerableTomcatReleases;
+            vulnerableTomcatReleases = Arrays.asList(4, 5, 6, 8);
+            
+            // TODO replace with regexp
+            if ( vulnerableTomcatReleases.contains(Integer.parseInt(release.substring(0, 1))) && !release.startsWith("8.5") ) {
 
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
@@ -40,7 +55,9 @@ public class SoftwareVersions {
                         "J2EEScan identified an unsupported release of Apache Tomcat <b>" + release + "</b>.<br />"
                         + "No more security updates for this version will be released by Apache <br /><br />"
                         + "<b>References</b><br />"
-                        + "http://tomcat.apache.org/tomcat-55-eol.html<br />",
+                        + "http://tomcat.apache.org/tomcat-55-eol.html<br />"
+                        + "https://tomcat.apache.org/tomcat-60-eol.html<br />"
+                        + "https://tomcat.apache.org/tomcat-80-eol.html",
                         "Update the Apache Servlet Container with the last stable release",
                         Risk.High,
                         Confidence.Certain
@@ -68,7 +85,7 @@ public class SoftwareVersions {
                         "J2EEScan identified an unsupported release of Jetty <b>" + release + "</b>.<br />"
                         + "No more security updates for this version will be released by the vendor <br /><br />"
                         + "<b>References</b><br />"
-                        + "https://webtide.com/jetty-7-and-jetty-8-end-of-life/<br />",
+                        + "https://wiki.eclipse.org/Jetty/Starting/Jetty_Version_Comparison_Table<br />",
                         "Update the Jetty Container with the last stable release",
                         Risk.High,
                         Confidence.Certain

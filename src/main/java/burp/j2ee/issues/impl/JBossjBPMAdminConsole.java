@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -75,6 +76,7 @@ public class JBossjBPMAdminConsole implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
+            List<String> JBOSS_jBPM_PATHS_MUTATED = URIMutator(JBOSS_jBPM_PATHS);
             for (String JBOSS_jBPM_PATH : JBOSS_jBPM_PATHS) {
 
                 try {

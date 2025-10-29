@@ -64,6 +64,8 @@ public class LFIModule implements IModule{
             //CVE-2025-55752
             "/WEB-INF/web.xml".getBytes(),
             "%2FWEB-INF%2Fweb.xml".getBytes(),
+            "WEB-INF/web.xml".getBytes(),
+            ".//WEB-INF/web.xml".getBytes()
     );    
     
     

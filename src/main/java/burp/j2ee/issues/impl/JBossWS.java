@@ -2,6 +2,7 @@ package burp.j2ee.issues.impl;
 
 import burp.j2ee.CustomScanIssue;
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -12,6 +13,7 @@ import burp.IScannerInsertionPoint;
 import burp.WeakPasswordBruteforcer;
 import burp.j2ee.Confidence;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 
 import java.io.PrintWriter;
@@ -51,7 +53,7 @@ public class JBossWS implements IModule{
     
     private PrintWriter stderr;
 
-    @Override
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -74,7 +76,8 @@ public class JBossWS implements IModule{
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String JBOSS_WS_PATH : JBOSS_WS) {
+            List<String> JBOSS_WS_MUTATED = URIMutator(JBOSS_WS);
+            for (String JBOSS_WS_PATH : JBOSS_WS_MUTATED) {
 
                 try {
                     // Test the presence of JBossWS console

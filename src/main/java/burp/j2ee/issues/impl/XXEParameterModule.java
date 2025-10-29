@@ -52,7 +52,10 @@ public class XXEParameterModule implements IModule{
             + " <pre>XMLInputFactory.SUPPORT_DTD</pre><br /><br />";
 
     private static final List<byte[]> XXE_INJECTION_TESTS = Arrays.asList(
-            "<?xml version=\"\"1.0\"\" encoding=\"\"ISO-8859-1\"\"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM \"\"file:////etc/passwd\"\">]><foo>&xxe;</foo>".getBytes());
+            "<?xml version=\"\"1.0\"\" encoding=\"\"ISO-8859-1\"\"?><!DOCTYPE foo [<!ELEMENT foo ANY><!ENTITY xxe SYSTEM \"\"file:////etc/passwd\"\">]><foo>&xxe;</foo>".getBytes(),
+            // https://twitter.com/Agarri_FR/status/656440244116574208
+            "<![CDATA[<!DOCTYPE doc [<!ENTITY % dtd SYSTEM \"file:///etc/passwd\"> %dtd;]><xxx/>]]>".getBytes()
+            );
 
     private static final List<Pattern> XXE_RE_MATCHES = Arrays.asList(
             Pattern.compile("root:.*:0:[01]:", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),

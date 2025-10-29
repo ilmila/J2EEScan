@@ -8,20 +8,19 @@ import java.util.Map;
 public class WeakPassword {
 
     public final List<Map.Entry<String, String>> credentials;
-            
-    public WeakPassword(){
+
+    public WeakPassword() {
         credentials = new ArrayList<>();
     }
-    
 
-    public void addCredential(Map.Entry<String, String> credential){
+    public void addCredential(Map.Entry<String, String> credential) {
         credentials.add(credential);
     }
-    
-    
+
     /**
      * Get a list of common username and password couples
-     * @return 
+     *
+     * @return
      */
     public List<Map.Entry<String, String>> getCredentials() {
 
@@ -58,7 +57,15 @@ public class WeakPassword {
         credentials.add(new AbstractMap.SimpleEntry<>("root", "password"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic1"));
+        credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic01"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "welcome1"));
+        credentials.add(new AbstractMap.SimpleEntry<>("admin", "security"));
+        credentials.add(new AbstractMap.SimpleEntry<>("oracle", "oracle"));
+        credentials.add(new AbstractMap.SimpleEntry<>("system", "security"));
+        credentials.add(new AbstractMap.SimpleEntry<>("system", "password"));
+        credentials.add(new AbstractMap.SimpleEntry<>("wlcsystem", "wlcsystem"));
+        credentials.add(new AbstractMap.SimpleEntry<>("wlpisystem", "wlpisystem"));
+        
         // Orbeon forms
         credentials.add(new AbstractMap.SimpleEntry<>("orbeonadmin", "xforms"));
 

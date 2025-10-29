@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.IBurpExtenderCallbacks;
 import burp.IExtensionHelpers;
@@ -12,6 +13,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -99,7 +101,7 @@ public class OASConfigFilesDisclosure implements IModule {
             "BC4J Runtime Parameters".getBytes()
     );
 
-    @Override
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -123,7 +125,8 @@ public class OASConfigFilesDisclosure implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
-            for (String OAS_PATH : OAS_PATHS) {
+            List<String> OAS_PATHS_MUTATED = URIMutator(OAS_PATHS);
+            for (String OAS_PATH : OAS_PATHS_MUTATED) {
 
                 try {
                     // Test the presence of tomcat console

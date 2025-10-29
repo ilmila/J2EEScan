@@ -28,7 +28,7 @@ public class XXEModule implements IModule{
     private static final String TITLE = "XML Security - XML External Entities Injection (XXE)";
     private static final String DESCRIPTION = "J2EEscan detect a XML External Entities Injection vulnerability.<br />"
             + "The XML parsing library supports the use of custom entity references in the XML document; custom entities "
-            + "can be defined by including a user defined <pre>DOCTYPE</pre> that reference an external resource to be included.<br /> "
+            + "can be defined by including a user defined <code>DOCTYPE</code> that reference an external resource to be included.<br /> "
             + "This option could be abused to carry on XXE attacks, leading to <i>DoS</i> conditions, "
             + "local file include, internal LAN scanning and <i>SSRF</i> attacks. "
             + "<br /><br />"
@@ -42,13 +42,13 @@ public class XXEModule implements IModule{
             + "http://vsecurity.com/download/papers/XMLDTDEntityAttacks.pdf<br />"
             + "http://lab.onsec.ru/2014/06/xxe-oob-exploitation-at-java-17.html<br />";
     
-    private static final String REMEDY = "It's reccomended to disable <pre>DOCTYPE</pre> resolution in the XML library; "
+    private static final String REMEDY = "It's reccomended to disable <code>DOCTYPE</code> resolution in the XML library; "
             + "an upgrade of XML library component usually is needed to fix this vulnerability<br />"
             + "https://github.com/jmurty/java-xmlbuilder/issues/6<br />"
-            + "https://www.java.net/xxe-xml-external-entity-attack-jaxb-and-jersey<br />"
+            + "https://www.java.net/xxe-xml-external-entity-attack-jaxb-and-jersey<br /><br />"
             + "<strong>JAXB</strong><br />"
-            + "Disable the following properties <pre>IS_SUPPORTING_EXTERNAL_ENTITIES</pre> and"
-            + " <pre>XMLInputFactory.SUPPORT_DTD</pre><br /><br />";
+            + "Disable the following properties <code>IS_SUPPORTING_EXTERNAL_ENTITIES</code> and"
+            + " <code>XMLInputFactory.SUPPORT_DTD</code><br /><br />";
 
     private static final String XXE_DTD_DEFINITION = "<?xml version=\"1.0\"?><!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>";
 
@@ -56,9 +56,10 @@ public class XXEModule implements IModule{
             "&xxe;".getBytes());
 
     private static final List<Pattern> XXE_RE_MATCHES = Arrays.asList(
-            Pattern.compile("root:.*:0:[01]:", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),
-            Pattern.compile("file not found", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),
-            Pattern.compile("java\\.io\\.FileNotFoundException", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+            Pattern.compile("root:.*:0:[01]:", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
+            // TODO FIXME Disable these patterns to avoid FP
+            //Pattern.compile("file not found", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),
+            //Pattern.compile("java\\.io\\.FileNotFoundException", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE));
 
     private static final List<Pattern> XXE_RE_FAIL = Arrays.asList(
             Pattern.compile("DOCTYPE is not allowed", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE),

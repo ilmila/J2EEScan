@@ -10,8 +10,12 @@ import burp.j2ee.passive.ApacheStrutsS2023Rule;
 import burp.j2ee.passive.ApacheTomcatRule;
 import burp.j2ee.passive.ExceptionRule;
 import burp.j2ee.passive.HttpServerHeaderRule;
+import burp.j2ee.passive.JSPostMessage;
 import burp.j2ee.passive.JettyRule;
+import burp.j2ee.passive.LiferayRule;
 import burp.j2ee.passive.PassiveRule;
+import burp.j2ee.passive.SessionFixation;
+import burp.j2ee.passive.SessionIDInURL;
 import burp.j2ee.passive.SqlQueryRule;
 
 
@@ -26,6 +30,10 @@ public class PassiveScanner {
         new SqlQueryRule(),
         new ApacheStrutsS2023Rule(),
         new JettyRule(),
+        new SessionIDInURL(),
+        new JSPostMessage(),
+        new SessionFixation(),
+        new LiferayRule()
     };
 
     public static void scanVulnerabilities(IHttpRequestResponse baseRequestResponse,

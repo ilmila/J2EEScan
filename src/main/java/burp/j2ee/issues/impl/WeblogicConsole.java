@@ -1,6 +1,7 @@
 package burp.j2ee.issues.impl;
 
 import burp.CustomHttpRequestResponse;
+import static burp.HTTPMatcher.URIMutator;
 import static burp.HTTPMatcher.getMatches;
 import burp.HTTPParser;
 import burp.IBurpExtenderCallbacks;
@@ -13,6 +14,7 @@ import burp.IScannerInsertionPoint;
 import burp.j2ee.Confidence;
 import burp.j2ee.CustomScanIssue;
 import burp.j2ee.Risk;
+import burp.j2ee.annotation.RunOnlyOnce;
 import burp.j2ee.issues.IModule;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -62,6 +64,7 @@ public class WeblogicConsole implements IModule {
         List<Map.Entry<String, String>> credentials = new ArrayList<>();
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic1"));
+        credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "weblogic01"));
         credentials.add(new AbstractMap.SimpleEntry<>("weblogic", "welcome1"));
 
         String body;
@@ -77,7 +80,7 @@ public class WeblogicConsole implements IModule {
         for (Map.Entry<String, String> credential : credentials) {
             String user = credential.getKey();
             String pwd = credential.getValue();
-            body = "userName=" + user + "&password=" + pwd + "&submit=+Login+";
+            body = "userName=" + user + "&password=" + pwd + "&submit=+Login+&j_character_encoding=UTF-8&j_username=" + user + "&j_password=" + pwd;
 
             byte[] loginMessage = helpers.buildHttpMessage(headers, body.getBytes());
             IHttpRequestResponse resp = callbacks.makeHttpRequest(baseRequestResponse.getHttpService(), loginMessage);
@@ -88,7 +91,19 @@ public class WeblogicConsole implements IModule {
 
             String locationHeader = HTTPParser.getResponseHeaderValue(weblogicInfo, "Location");
 
-            if ((locationHeader != null) && (locationHeader.contains("/index.jsp"))) {
+            /***
+             * 
+             * On WebLogic Server Version: 10.3.5.0 successful login with static cookies 
+             * 
+             * HTTP/1.1 302 Moved Temporarily
+             * Location: http://<host>:7001/console
+             * Set-Cookie: ADMINCONSOLESESSION=dGyhp1pMQH8NgtmPbN2v7TYcRZfdy21RJ1dXWVL4t3GrSR8ltGBM!-1002201200; path=/
+             * X-Powered-By: Servlet/2.5 JSP/2.1
+             * Content-Length: 263
+             * 
+             */
+            
+            if ((locationHeader != null) && (locationHeader.contains("/index.jsp") || locationHeader.endsWith("/console"))) {
                 return String.format("%s:%s", user, pwd);
             }
         }
@@ -96,7 +111,7 @@ public class WeblogicConsole implements IModule {
         return null;
     }
 
-    @SuppressWarnings("empty-statement")
+    @RunOnlyOnce
     public List<IScanIssue> scan(IBurpExtenderCallbacks callbacks, IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
 
         List<IScanIssue> issues = new ArrayList<>();
@@ -119,6 +134,7 @@ public class WeblogicConsole implements IModule {
             String protocol = url.getProtocol();
             Boolean isSSL = (protocol.equals("https"));
 
+            List<String> WEBLOGIC_CONSOLE_PATHS_MUTATED = URIMutator(WEBLOGIC_CONSOLE_PATHS);
             for (String WEBLOGIC_CONSOLE_PATH : WEBLOGIC_CONSOLE_PATHS) {
 
                 try {

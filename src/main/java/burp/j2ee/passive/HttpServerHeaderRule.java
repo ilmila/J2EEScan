@@ -80,7 +80,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("Jetty", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?adv_search=true&cpe=cpe%3A%2Fa%3Amortbay%3Ajetty%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -114,7 +114,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("GlassFish", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aglassfish_server%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aglassfish_server%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -152,7 +152,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                 SoftwareVersions.getIssues("WebLogic", version, callbacks, baseRequestResponse);
 
-                String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aweblogic_server%3A" + version;
+                String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aweblogic_server%3A" + version;
                 callbacks.addScanIssue(new CustomScanIssue(
                         baseRequestResponse.getHttpService(),
                         reqInfo.getUrl(),
@@ -192,7 +192,7 @@ public class HttpServerHeaderRule implements PassiveRule {
 
                     SoftwareVersions.getIssues("Oracle Application Server", version, callbacks, baseRequestResponse);
 
-                    String nistLink = "http://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aapplication_server%3A" + version;
+                    String nistLink = "https://web.nvd.nist.gov/view/vuln/search-results?cpe=cpe%3A%2Fa%3Aoracle%3Aapplication_server%3A" + version;
                     callbacks.addScanIssue(new CustomScanIssue(
                             baseRequestResponse.getHttpService(),
                             reqInfo.getUrl(),
@@ -200,7 +200,7 @@ public class HttpServerHeaderRule implements PassiveRule {
                             "Information Disclosure - Oracle Application Server " + version,
                             "J2EEscan identified the remote Application Server release; "
                             + "Oracle Application Server  version <b>" + version + "</b>.<br />"
-                            + "The potential vulnerabilities for this release are available at:<br />"
+                            + "Potential vulnerabilities for this release are available at:<br />"
                             + "<ul><li>" + nistLink + "</li></ul><br /><br />",
                             "Configure the remote application server to suppress the HTTP Server header<br />"
                             + "http://docs.oracle.com/cd/E23943_01/web.1111/e10144/faq.htm#HSADM939<br />"
@@ -215,15 +215,13 @@ public class HttpServerHeaderRule implements PassiveRule {
 
         }
 
-        
         /**
-         * 
+         *
          * NodeJS detection
-         * 
-         * Example:
-         * X-Powered-By: Express
-         * 
-         * 
+         *
+         * Example: X-Powered-By: Express
+         *
+         *
          */
         if (xPoweredByHeader != null) {
             if (xPoweredByHeader.trim().equals("Express")) {
@@ -233,6 +231,27 @@ public class HttpServerHeaderRule implements PassiveRule {
                         baseRequestResponse,
                         "NodeJS detected",
                         "J2EEscan identified the NodeJS framework,",
+                        "ExpressJS hardening guidelines: <br />"
+                           + "https://expressjs.com/en/advanced/best-practice-security.html",
+                        Risk.Information,
+                        Confidence.Certain
+                ));
+            }
+        }
+
+        /**
+         *
+         * X-Powered-By: Next.js 4.2.3
+         *
+         */
+        if (xPoweredByHeader != null) {
+            if (xPoweredByHeader.trim().contains("Next.js")) {
+                callbacks.addScanIssue(new CustomScanIssue(
+                        baseRequestResponse.getHttpService(),
+                        reqInfo.getUrl(),
+                        baseRequestResponse,
+                        "Next Javascript Framework detected",
+                        "J2EEscan identified the Next Javascript Framework",
                         "",
                         Risk.Information,
                         Confidence.Certain
