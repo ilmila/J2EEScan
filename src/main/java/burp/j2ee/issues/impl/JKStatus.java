@@ -55,6 +55,15 @@ public class JKStatus implements IModule{
             "/jkmanager",
             "/jkmanager-auth",
             "/jdkstatus"
+        
+        // Restriction Bypass using a semi-colon
+            "/jk-status;",
+            "/jkstatus-auth;",
+            "/jkstatus;",
+            "/jkmanager;",
+            "/jkmanager-auth;",
+            "/jdkstatus;"
+        
     );   
 
     private static final byte[] GREP_STRING = "JK Status Manager".getBytes();
